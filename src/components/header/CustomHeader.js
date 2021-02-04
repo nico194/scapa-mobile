@@ -1,12 +1,20 @@
 import React from 'react'
-import { Container, Header, Text } from 'native-base'
+import { Body, Button, Header, Icon, Left, Right, Title } from 'native-base'
 
-export default function CustomHeader() {
+export default function CustomHeader({ hasBack, onClickBack, title, rightElements }) {
     return (
-        <Container>
-            <Header>
-                <Text>This is a Headerdd</Text>
-            </Header>
-        </Container>
+        <Header>
+            <Left>
+                <Button transparent>
+                    { hasBack && <Icon onPress={ onClickBack } name='arrow-back' />}
+                </Button>
+            </Left>
+            <Body>
+                <Title>{ title }</Title>
+            </Body>
+            <Right>
+                { rightElements }
+            </Right>
+        </Header>
     )
 }

@@ -1,9 +1,12 @@
 import React, { useState ,useEffect } from 'react';
-import { StyleSheet, Image, View, Modal } from 'react-native';
-import { Card, CardItem, Text, Button, H1} from 'native-base';
+import { useDispatch, useSelector } from 'react-redux';
+import { getUser } from '../model/user'
+import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
+import { Card, CardItem, Text, Button, H1, Input, Form, Item, Label} from 'native-base';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { MaterialIcons } from '@expo/vector-icons';
+import CustomModal from '../components/modal/CustomModal';
 
 
 export default function HomeScreen({ navigation }) {
@@ -23,66 +26,83 @@ export default function HomeScreen({ navigation }) {
 
     useEffect(() => {
         changeScreenOrientationLandscape();
-    })
+    }, [])
 
-    async function changeScreenOrientationPortrait() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-        navigation.navigate('Login');
+    const { user } = useSelector(state => state.users)
+
+    useEffect(() => {
+        async function getUserAuth() {
+            try {
+                const userAuth = await getUser(user.id)
+                console.log('auth', userAuth)
+            } catch (error) {
+                console.log('err', error)
+            }
+        }
+
+        getUserAuth();
+    }, [])
+
+    console.log('userss', user)
+
+    const goToConfig = () => {
+        setModalVisible(false)
     }
 
-    function goBackToLogin() {
-        changeScreenOrientationPortrait();
-    }
-
-    function goToConfig() {
+    const openModal = () => {
         setModalVisible(true)
     }
 
     return (
         <LinearGradient style={{ flex: 1 }}  colors={['#62B1F6', '#2F62FB']}>
-            <Button onPress={goToConfig} style={{ position: 'absolute', top: 0, right: 0 }}>                
+            <Button onPress={openModal} style={{ position: 'absolute', top: 0, right: 0 }}>                
                 <MaterialIcons name='settings' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
                 <Text style={{ fontSize: 18 }}>Ir a configuraciones</Text>
             </Button>
-            <Button warning onPress={goBackToLogin} style={{ position: 'absolute', top: 0, left: 0 }}>                
-                <MaterialIcons name='arrow-back' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
-                <Text style={{ fontSize: 18 }}>Salir</Text>
-            </Button>
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                style={styles.centerComponents}
-                onRequestClose={() => {
-                  setModalVisible(false)
-                }}>
-                    <H1>This is a modal</H1>
-            </Modal>
+            <CustomModal modalVisible={modalVisible}>
+                <Form>
+                    <H1 style={{ marginBottom: 20}}>Ingrese su contraseña de usuario:</H1>
+                    <Text style={{ marginBottom: 20}}>Para ingresar a la sesión de configuración primero debe ingresar la contraseña</Text>
+                    <Item style={{ marginBottom: 40}} floatingLabel>
+                        <Label>Contraseña</Label>
+                        <Input />
+                    </Item>
+                    <Button onPress={goToConfig} block>
+                        <Text>Ingresar</Text>
+                    </Button>
+                </Form>
+            </CustomModal>
             <View style={styles.centerComponents}>
-                <Card style={{ marginVertical: 20 }}>
-                    <CardItem>
-                        <Image source={{ uri: imageRoutines}} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                    </CardItem>
-                    <CardItem bordered footer>
-                        <Text style={{ width: 200 ,textAlign: 'center' }}>Rutinas</Text>
-                    </CardItem>
-                </Card>
-                <Card style={{ marginVertical: 20 }}>
-                    <CardItem>
-                        <Image source={{ uri: imageSpeak }} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                    </CardItem>
-                    <CardItem bordered footer>
-                        <Text style={{ width: 200 ,textAlign: 'center' }}>Empezemos a Hablar</Text>
-                    </CardItem>
-                </Card>
-                <Card style={{ marginVertical: 20 }}>
-                    <CardItem>
-                        <Image source={{ uri: imageMemories}} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                    </CardItem>
-                    <CardItem bordered footer>
-                        <Text style={{ width: 200 ,textAlign: 'center' }}>Recuerdos</Text>
-                    </CardItem>
-                </Card>
+                <TouchableOpacity onPress={ () => alert("This is Card Routines")}>
+                    <Card style={{ marginVertical: 20 }}>
+                        <CardItem>
+                            <Image source={{ uri: imageRoutines}} resizeMode='contain' style={{ width: 200, height: 150 }} />
+                        </CardItem>
+                        <CardItem bordered footer>
+                            <Text style={{ width: 200 ,textAlign: 'center' }}>Rutinas</Text>
+                        </CardItem>
+                    </Card>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={ () => navigation.navigate('Speak')}>
+                    <Card style={{ marginVertical: 20 }}>
+                        <CardItem>
+                            <Image source={{ uri: imageSpeak }} resizeMode='contain' style={{ width: 200, height: 150 }} />
+                        </CardItem>
+                        <CardItem bordered footer>
+                            <Text style={{ width: 200 ,textAlign: 'center' }}>Empezemos a Hablar</Text>
+                        </CardItem>
+                    </Card>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={ () => alert("This is Card Memories")}>
+                    <Card style={{ marginVertical: 20 }}>
+                        <CardItem>
+                            <Image source={{ uri: imageMemories}} resizeMode='contain' style={{ width: 200, height: 150 }} />
+                        </CardItem>
+                        <CardItem bordered footer>
+                            <Text style={{ width: 200 ,textAlign: 'center' }}>Recuerdos</Text>
+                        </CardItem>
+                    </Card>
+                </TouchableOpacity>
             </View>
         </LinearGradient>
     )
@@ -99,5 +119,15 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'center',
         flexDirection: 'row',
+    },
+    modalStyle: {
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        flex: 1,
+    },
+    modalStyle: {
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        flex: 1,
+        margin: 50,
+        padding: 20
     }
 })

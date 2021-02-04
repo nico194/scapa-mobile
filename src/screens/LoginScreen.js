@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, ImageBackground, Dimensions } from 'react-native';
-import { Container, Header ,Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner} from 'native-base';
+import { StyleSheet, ImageBackground, Dimensions, View } from 'react-native';
+import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner, H1 } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import * as ScreenOrientation from 'expo-screen-orientation';
+import CustomHeader from '../components/header/CustomHeader';
 
 export default function LoginScreen({ navigation }) {
 
@@ -25,17 +26,22 @@ export default function LoginScreen({ navigation }) {
         setTimeout(() => {
             setLoading(false)
             navigation.navigate('Home')
-        }, 2000)
+        }, 1000)
     }
 
     return (
         <Container>
+            <CustomHeader title='SCAPA APP'/>
             <ImageBackground 
                 source={image} 
                 style={styles.backgroundImage} >
                 <Content 
                     padder 
                     contentContainerStyle={styles.cardForm}>
+                    <View padder contentContainerStyle={{ position: 'absolute', top: 0 }}>
+                        <Text style={styles.headTitle}>Bienvenido a SCAPA</Text>
+                        <Text style={{ textAlign: 'center', marginBottom: 20, fontWeight: 'bold' }}>Sistema de Comunicación Aumentativo y Alternativo para personas con Autismo</Text>
+                    </View>
                     <Card>
                         <CardItem header>
                             <Text style={styles.title}>Iniciar Sesión</Text>
@@ -92,6 +98,12 @@ const styles = StyleSheet.create({
         width: '100%',
         textAlign: 'center',
         fontSize: 30
+    },
+    headTitle: {
+        width: '100%',
+        textAlign:'center',
+        fontSize: 45,
+        fontWeight: 'bold'
     },
     backgroundImage: {
         width: Dimensions.get('window').width, 

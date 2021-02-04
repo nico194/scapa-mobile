@@ -1,47 +1,32 @@
 import React, { useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { signUp } from '../redux/actions/users'
 import { StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
-import DatePicker from 'react-native-datepicker';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import CustomHeader from '../components/header/CustomHeader';
 
 export default function RegisterScreen({ navigation }) {
 
-    const [ loading, setLoading ] = useState(false);
-    const [ name, setName ] = useState('');
     const [ email, setEmail ] = useState('');
-    const [ date, setDate ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ passwordRepeat, setPasswordRepeat ] = useState('');
     const image = require('../../assets/backgroundLogin.png');
 
+    const dispatch = useDispatch();
+    const { loading, auth } = useSelector(state => state.users)
+
     useEffect(() => {
-        changeScreenOrientation();
-    })
+        auth && navigation.navigate('Home')
+    }, [auth])
 
-    changeScreenOrientation = async () => {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    }
-
-    handlerSignUp = () => {
-        setLoading(true)
-        console.log('Sign Up', {
-            name,
-            email,
-            date,
-            password,
-            passwordRepeat
-        })
-        setTimeout(() => {
-            setLoading(false)
-            navigation.navigate('Home')
-        }, 2000)
+    const handlerSignUp = () => {
+        dispatch(signUp({ email, password }));
     }
     
     return (
         <Container>
-            <CustomHeader/>
+            <CustomHeader hasBack={true} onClickBack={ () => navigation.navigate('Login')} title='Registrarse' />
             <ImageBackground 
                 source={image} 
                 style={styles.backgroundImage} >
@@ -56,37 +41,8 @@ export default function RegisterScreen({ navigation }) {
                             <Body>
                                 <Form style={{ alignSelf: 'stretch' }}>
                                     <Item stackedLabel>
-                                        <Label style={{marginLeft: 5}}>Nombre y Apellido</Label>
-                                        <Input onChangeText={ (value) => setName(value)} />
-                                    </Item>
-                                    <Item stackedLabel>
                                         <Label style={{marginLeft: 5}}>Email</Label>
                                         <Input onChangeText={ (value) => setEmail(value)} />
-                                    </Item>
-                                    <Item stackedLabel>
-                                        <Label>Fecha de Nacimiento</Label>
-                                        <DatePicker
-                                            style={{width: '100%'}}
-                                            date={date}
-                                            mode="date"
-                                            placeholder="Seleccione una Fecha"
-                                            format="DD-MM-YYYY"
-                                            maxDate={new Date()}
-                                            confirmBtnText="Confirma"
-                                            cancelBtnText="Cancelar"
-                                            customStyles={{
-                                                dateIcon: {
-                                                position: 'absolute',
-                                                right: 0,
-                                                top: 4,
-                                                marginRight: 0
-                                                },
-                                                dateInput: {
-                                                    borderColor: 'transparent'
-                                                }
-                                            }}
-                                            onDateChange={ (date) => setDate(date) }                                   
-                                        />
                                     </Item>
                                     <Item stackedLabel>
                                         <Label style={{marginLeft: 5}}>Contraseña</Label>
