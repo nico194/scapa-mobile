@@ -1,33 +1,33 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { authenticationUser } from '../redux/actions/users'
 import { StyleSheet, ImageBackground, Dimensions, View } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner, H1 } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import { setOrientation } from '../configs/orientation'
 import CustomHeader from '../components/header/CustomHeader';
+import { getErrorMessage } from '../configs/manageError';
 
 export default function LoginScreen({ navigation }) {
 
-    const [ loading, setLoading ] = useState(false);
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
     const image = require('../../assets/backgroundLogin.png')
 
-    async function changeScreenOrientationPortrait() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-    }
-    
+    const dispatch = useDispatch();
+    const { loading, auth, error } = useSelector(state => state.users);
+
     useEffect(() => {
-        changeScreenOrientationPortrait();
-    })
+        setOrientation(navigation, 'portrait')
+    }, [navigation]);
     
-    function handlerSignIn() {
-        setLoading(true)
-        console.log(`Email: ${email} & Password: ${password}`)
-        setTimeout(() => {
-            setLoading(false)
-            navigation.navigate('Home')
-        }, 1000)
+    const handlerSignIn = () => {
+       dispatch(authenticationUser({email, password}, '/sign_in'));
     }
+
+    useEffect(() => {
+        auth && navigation.navigate('LoadingResourse');
+    }, [auth])
 
     return (
         <Container>
@@ -46,6 +46,12 @@ export default function LoginScreen({ navigation }) {
                         <CardItem header>
                             <Text style={styles.title}>Iniciar Sesión</Text>
                         </CardItem>
+                        {
+                            error && !loading &&
+                                <CardItem >
+                                    <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
+                                </CardItem>
+                        }
                         <CardItem>
                             <Body>
                                 <Form style={{ alignSelf: 'stretch' }}>
@@ -73,10 +79,11 @@ export default function LoginScreen({ navigation }) {
                             <Right>
                                 <Button primary onPress={handlerSignIn}>
                                     <Text>Ingresar</Text>
-                                    { loading ?
-                                        <Spinner color='white'/>
-                                        :
-                                        <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
+                                    { 
+                                        loading ?
+                                            <Spinner color='white'/>
+                                            :
+                                            <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
                                     }
                                 </Button>
                             </Right>

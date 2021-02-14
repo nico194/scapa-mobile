@@ -9,15 +9,53 @@ import db from '../configs/database';
 "uid": "nico1@gmial.com",
 */
 
-export class User {
-    constructor({ id, email, name, accessToken, client, uid, voice = true }) {
+export default class User {
+    constructor( id, email = '', accessToken = '', client = '', uid = '' ) {
         this.id = id
         this.email = email,
-        this.name = name,
         this.accessToken = accessToken,
         this.client = client,
-        this.uid = uid,
-        this.voice = voice
+        this.uid = uid
+    }
+
+    getId() {
+        return this.id;
+    }
+
+    setId(id) {
+        this.id = id;
+    }
+
+    getEmail() {
+        return this.email;
+    }
+
+    setEmail(email) {
+        this.email = email;
+    }
+
+    getAccessToken() {
+        return this.accessToken;
+    }
+
+    setAccessToken(accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    getClient() {
+        return this.client;
+    }
+
+    setClient(client) {
+        this.client = client;
+    }
+
+    getUid() {
+        return this.uid;
+    }
+
+    setUid(uid) {
+        this.uid = uid;
     }
 
     async getUser(id) {
@@ -27,7 +65,8 @@ export class User {
                     'select * from users where id = ?',
                     [id],
                     (trn, results) => {
-                        resolve(results.rows._array);
+                        console.log(results.rows._array[0])
+                        resolve(results.rows._array[0]);
                     },
                     (trn, error) => {
                         reject(error);
@@ -42,13 +81,14 @@ export class User {
         return new Promise((resolve, reject) => {
             db.transaction( tx => {
                 tx.executeSql(
-                    'insert into users ( id, email, accessToken, client, uid, voice ) values (?, ?, ?, ?, ?, ?, ?)',
-                    [this.id, this.email, this.accessToken, this.client, this.uid, this.voice],
+                    'insert into users ( id, email, accessToken, client, uid ) values (?, ?, ?, ?, ?)',
+                    [this.id, this.email, this.accessToken, this.client, this.uid],
                     (trn, results) => {
-                        console.log('seee', results)
-                        resolve(results.rows._array);
+                        console.log('Saved', results.rowsAffected)
+                        resolve(results.rowsAffected);
                     },
                     (trn, error) => {
+                        console.log(error)
                         reject(error);
                     }
                 )
@@ -56,11 +96,29 @@ export class User {
         })
     }
 
+    async update() {
+        return new Promise( (resolve, reject) => {
+            db.transaction( tx => 
+                tx.executeSql(
+                    'update users set accessToken = ?, client = ?, uid = ? where id = ?',
+                    [this.accessToken, this.client, this.uid, this.id],
+                    (trn, results) => {
+                        console.log('Saved', results.rowsAffected)
+                        resolve(results.rowsAffected);
+                    },
+                    (trn, error) => {
+                        reject(error)
+                    }
+                )
+            )
+        });
+    }
+
     async changeVoiceReproduce() {
         return new Promise( (resolve, reject) => {
             db.transaction( tx => 
                 tx.executeSql(
-                    'update set voice = ? where id = ?',
+                    'update users set voice = ? where id = ?',
                     [this.id, !this.voice],
                     (trn, results) => {
                         resolve(true)

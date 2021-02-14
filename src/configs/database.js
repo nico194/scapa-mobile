@@ -28,8 +28,8 @@ export const setupDatabaseAsync = async () => {
         db.transaction(tx => {
             tx.executeSql(`
                 create table if not exists users (id integer primary key not null, email text, accessToken text, client text, uid text, voice integer);
-                create table if not exists categories ( id integer primary key not null, desription text );
-                create table if not exists pictograms ( id integer primary key not null, desription text, category_id integer, foreign key(category_id) references categories(id) );
+                create table if not exists categories ( id integer primary key not null, desription text, custom integer );
+                create table if not exists pictograms ( id integer primary key not null, desription text, category_id integer, custom integer, foreign key(category_id) references categories(id) );
             `);
         },
         (_, error) => { console.log("db error creating tables"); console.log(error); reject(error) },

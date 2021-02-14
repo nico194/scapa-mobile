@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { signUp } from '../redux/actions/users'
+import { authenticationUser } from '../redux/actions/users'
 import { StyleSheet, ImageBackground, Dimensions } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomHeader from '../components/header/CustomHeader';
+import { setOrientation } from '../configs/orientation';
+import { getErrorMessage } from '../configs/manageError';
 
 export default function RegisterScreen({ navigation }) {
 
@@ -14,15 +16,20 @@ export default function RegisterScreen({ navigation }) {
     const image = require('../../assets/backgroundLogin.png');
 
     const dispatch = useDispatch();
-    const { loading, auth } = useSelector(state => state.users)
+    const { loading, auth, error } = useSelector(state => state.users)
 
     useEffect(() => {
-        auth && navigation.navigate('Home')
-    }, [auth])
+        setOrientation(navigation, 'portrait')
+    }, [navigation]);
 
+    
     const handlerSignUp = () => {
-        dispatch(signUp({ email, password }));
+        dispatch(authenticationUser({ email, password }));
     }
+    
+    useEffect(() => {
+        auth && navigation.navigate('LoadingResourse');
+    }, [auth])
     
     return (
         <Container>
@@ -37,6 +44,12 @@ export default function RegisterScreen({ navigation }) {
                         <CardItem header>
                             <Text style={styles.title}>Registrarse</Text>
                         </CardItem>
+                        {
+                            error && !loading &&
+                                <CardItem >
+                                    <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
+                                </CardItem>
+                        }
                         <CardItem>
                             <Body>
                                 <Form style={{ alignSelf: 'stretch' }}>

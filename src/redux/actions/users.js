@@ -1,57 +1,38 @@
 import {
-    FETCH_USERS_PENDING,
-    USER_ERROR,
-    USER_SIGNIN_SUCCESS,
-    USER_SIGNUP_SUCCESS,
+    USER_PENDING,
+    AUTH_ERROR,
+    AUTH_SUCCESS,
     USER_LOGOUT
 } from '../constants/users';
 import axiosConfig from '../../configs/axios';
 import User from '../../model/User'
 
-export const signIn = (user) => {
-    return dispatch => {
-        dispatch({ type: FETCH_USERS_PENDING});
-        axiosConfig.post('/admin/auth/sign_in', user)
-            .then( response => {
-                const user = {
-                    id: response.data.data.id,
-                    email: response.data.data.email,
-                    username: response.data.data.nickname,
-                    name: response.data.data.name,
-                    accessToken: response.headers['access-token'],
-                    client: response.headers.client,
-                    uid: response.headers.uid
-                }
-                // const userEncripted = btoa(JSON.stringify(user))
-                // localStorage.setItem('user', userEncripted)
-                return dispatch({ type: USER_SIGNIN_SUCCESS, payload: {user}})
-            })
-            .catch( error => dispatch({ type: USER_ERROR, payload: {error}}))
-
-    }
-}
-
-export const signUp =({ name, email, password }) => {
+export const authenticationUser = (user, route = '') => {
     return async dispatch => {
-        //dispatch({ type: FETCH_USERS_PENDING});
-        const userData = {
-            email,
-            password
-        };
-                
+        dispatch({ type: USER_PENDING});      
         try {
-            const response = await axiosConfig.post('/v1/auth', JSON.stringify(userData));
-            const user = new User(
-                                response.data.data.id,                
-                                response.data.data.email,
-                                response.headers['access-token'],
-                                response.headers.client,
-                                response.headers.uid
-                            );
-            await user.save();
-           // return dispatch({ type: USER_SIGNUP_SUCCESS, payload: {user} });
+            const response = await axiosConfig.post(`/v1/auth${route}`, JSON.stringify(user));
+            const { id, email } = response.data.data;
+            const { client, uid } = response.headers;
+            const accessToken = response.headers['access-token'];
+            let userToSave;
+            const existUser = new User(id, email);
+            const userExist = await existUser.getUser(id);
+            if (userExist !== {})  {
+                existUser.setAccessToken(accessToken);
+                existUser.setClient(client);
+                existUser.setUid(uid);
+                userToSave = existUser;
+                await existUser.update()
+            } else {
+                const newUser = new User( id, email, accessToken, client, uid);
+                userToSave = newUser;
+                await newUser.save();
+            }
+            return dispatch({ type: AUTH_SUCCESS, payload: {user: userToSave} });
         } catch (error) {
-            //return dispatch({ type: USER_ERROR, payload: {error}})
+            console.log('error in action', error)
+            return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
         }
     }
 }
@@ -62,3 +43,4 @@ export const logOut = () => {
         dispatch({ type: USER_LOGOUT, payload: { user: {} } })
     }
 }
+

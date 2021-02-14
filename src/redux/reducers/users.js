@@ -1,10 +1,9 @@
 import {
-    FETCH_USERS_PENDING,
-    USER_ERROR,
-    USER_SIGNIN_SUCCESS,
-    USER_SIGNUP_SUCCESS,
+    USER_PENDING,
+    AUTH_ERROR,
+    AUTH_SUCCESS,
     USER_LOGOUT
-} from '../constants/users'
+} from '../constants/users';
 
 
 // const regExp = new RegExp(`^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`);
@@ -14,31 +13,30 @@ const initialState = {
     loading: false,
     user: {},
     auth: false,
-    err: null
+    error: null
 }
 
 const UsersReducer = (state = initialState, { type, payload }) => {
     switch (type) {
-        case FETCH_USERS_PENDING:{
+        case USER_PENDING:{
             return {
                 ...state,
                 loading: true
             }
         }
-        case USER_ERROR: {
+        case AUTH_ERROR: {
             return {
                 ...state,
                 loading: false,
-                err: payload.err
+                error: payload.error
             }
         }
-        case USER_SIGNIN_SUCCESS:
-        case USER_SIGNUP_SUCCESS: 
+        case AUTH_SUCCESS: 
             return {
                 ...state,
                 loading: false,
                 user: payload.user,
-                auth: true
+                auth: true,
             } 
         case USER_LOGOUT:
             return {

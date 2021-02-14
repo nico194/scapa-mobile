@@ -1,4 +1,4 @@
-import { 
+import {
     FETCH_CATEGORIES_PENDING,
     FETCH_CATEGORIES_ERROR,
     FETCH_CATEGORIES_SUCCESS,
@@ -11,7 +11,37 @@ import {
     } from '../constants/categories';
 import axiosConfig from '../../configs/axios'
 
-export const getCategories = ({ accessToken, client, uid }, page = 1, perPage = 15) => {
+export const getCategoriesAdmin = ({ accessToken, client, uid }) => {
+    return async dispatch => {
+        dispatch({ type: FETCH_CATEGORIES_PENDING });
+        console.log('access: ', accessToken, client, uid)
+        const headers = { headers: {
+            'access-token': accessToken,
+            client,
+            uid
+        }}
+        
+        try {
+            const response = await axiosConfig.get(`/admin/categories?per_page=999`, headers);
+            console.log('response', response)
+        } catch (err) {
+            console.log(err);
+            return dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}})
+        }
+        // 
+        //     .then( response =>
+        //         dispatch({
+        //             type: FETCH_CATEGORIES_SUCCESS,
+        //             payload: {
+        //                 categories: response.data.data,
+        //             }
+        //         })
+        //     )
+        //     .catch( err => dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}}));
+    }
+}
+
+export const getCategoriesCustom = ({ accessToken, client, uid }) => {
     return dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
@@ -19,22 +49,19 @@ export const getCategories = ({ accessToken, client, uid }, page = 1, perPage = 
             client,
             uid
         }}
-        axiosConfig.get(`/admin/categories?per_page=${perPage}&page=${page}`, headers )
-            .then( response => 
-                dispatch({ 
-                    type: FETCH_CATEGORIES_SUCCESS, 
-                    payload: { 
+        axiosConfig.get(`/admin/categories?per_page=999`, headers )
+            .then( response =>
+                dispatch({
+                    type: FETCH_CATEGORIES_SUCCESS,
+                    payload: {
                         categories: response.data.data,
-                        previousPage: response.data.meta.prev_page,
-                        currentPage: response.data.meta.current_page ,
-                        totalPage: response.data.meta.total_pages ,
-                        nextPage: response.data.meta.next_page
                     }
                 })
             )
             .catch( err => dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}}));
     }
 }
+
 
 export const addCategory = (categoryDescription, { accessToken, client, uid }) => {
     return dispatch => {
@@ -72,7 +99,7 @@ export const deleteCategory = (id, { accessToken, client, uid }) => {
 export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) => {
     return dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
-        const headers = { 
+        const headers = {
             headers: {
                 'access-token': accessToken,
                 client,

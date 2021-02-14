@@ -1,10 +1,9 @@
 import React, { useState ,useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getUser } from '../model/user'
+import { useSelector } from 'react-redux';
 import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
 import { Card, CardItem, Text, Button, H1, Input, Form, Item, Label} from 'native-base';
 import { LinearGradient } from 'expo-linear-gradient';
-import * as ScreenOrientation from 'expo-screen-orientation';
+import { setOrientation } from '../configs/orientation'
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomModal from '../components/modal/CustomModal';
 
@@ -20,33 +19,14 @@ export default function HomeScreen({ navigation }) {
     const imageMemories = Image.resolveAssetSource(imageButtonToMemories).uri;
     const imageRoutines = Image.resolveAssetSource(imageButtonToRoutines).uri;
 
-    async function changeScreenOrientationLandscape() {
-        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
-    }
 
     useEffect(() => {
-        changeScreenOrientationLandscape();
-    }, [])
-
-    const { user } = useSelector(state => state.users)
-
-    useEffect(() => {
-        async function getUserAuth() {
-            try {
-                const userAuth = await getUser(user.id)
-                console.log('auth', userAuth)
-            } catch (error) {
-                console.log('err', error)
-            }
-        }
-
-        getUserAuth();
-    }, [])
-
-    console.log('userss', user)
+        setOrientation(navigation, 'landspace')
+    }, [navigation]);
 
     const goToConfig = () => {
-        setModalVisible(false)
+        setModalVisible(false);
+        navigation.navigate('Config');
     }
 
     const openModal = () => {
