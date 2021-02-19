@@ -1232,6 +1232,13 @@
     "@types/yargs" "^15.0.0"
     chalk "^4.0.0"
 
+"@react-native-async-storage/async-storage@^1.13.4":
+  version "1.13.4"
+  resolved "http://10.62.100.19:8081/repository/npm-group/@react-native-async-storage/async-storage/-/async-storage-1.13.4.tgz#05d29b7884be16fc3c40dcaa44e02fa291a020a2"
+  integrity sha512-P7cbA77XNhUFEBKAIaex17mKI/Db1RQHZVwplagskqzEnpqB+Yi+/l8QeOMr5OJdfmPkBA+V7DOmuWeB8Po6cQ==
+  dependencies:
+    deep-assign "^3.0.0"
+
 "@react-native-community/cli-debugger-ui@^4.13.1":
   version "4.13.1"
   resolved "http://10.62.100.19:8081/repository/npm-group/@react-native-community/cli-debugger-ui/-/cli-debugger-ui-4.13.1.tgz#07de6d4dab80ec49231de1f1fbf658b4ad39b32c"
@@ -2764,14 +2771,6 @@ expo-sqlite-query-helper@^1.1.4:
   version "1.1.4"
   resolved "http://10.62.100.19:8081/repository/npm-group/expo-sqlite-query-helper/-/expo-sqlite-query-helper-1.1.4.tgz#afe85d79fc0a7dc7c717e58ff75225ef93b0c4c9"
   integrity sha512-Nvimcq49z1KBQ+Ab605WHbVILUygd3+fL40AUK41+aLKvVkJBfSRqXq7qjEps9odVLGPsWi6II21GDVX+oU6vQ==
-
-expo-sqlite@^9.0.0:
-  version "9.0.0"
-  resolved "http://10.62.100.19:8081/repository/npm-group/expo-sqlite/-/expo-sqlite-9.0.0.tgz#b779dcc7e8bd274487ea97e5927dec7226c88c3f"
-  integrity sha512-EWsMxNYW9dhevTtliE+XrNCACKUqt9rjksv8pXUUw/YxwL4oakOzMonViGWyPlljqWkzur+8P+y+UbFz41F5ug==
-  dependencies:
-    "@expo/websql" "^1.0.1"
-    lodash "^4.17.15"
 
 expo-sqlite@~8.5.0:
   version "8.5.0"

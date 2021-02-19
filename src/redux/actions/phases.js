@@ -8,7 +8,7 @@ import {
     UPDATE_ROUTINE_ERROR,
     DELETE_ROUTINE_SUCCESS,
     DELETE_ROUTINE_ERROR
-} from '../constants/routines';
+} from '../constants/phrases';
 
 export const getRoutine = () => {
     return dispatch => {

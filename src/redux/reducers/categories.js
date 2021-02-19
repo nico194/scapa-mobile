@@ -11,13 +11,9 @@ import {
     } from '../constants/categories';
 
 const initialState = {
-    loadingCategoriesCategories: false,
+    loadingCategories: false,
     categories: [],
     changed: false,
-    previousPage: 0, 
-    currentPage: 0, 
-    totalPage: 0, 
-    nextPage: 0,
     err: null
 }
 
@@ -39,16 +35,12 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 err: payload.err
             }
         }
-        case FETCH_CATEGORIES_SUCCESS: 
+        case FETCH_CATEGORIES_SUCCESS:
             return {
                 ...state,
                 loadingCategories: false,
                 categories: payload.categories,
                 changed: false,
-                previousPage: payload.previousPage, 
-                currentPage: payload.currentPage, 
-                totalPage: payload.totalPage, 
-                nextPage: payload.nextPage,
             }
         case ADD_CATEGORY_SUCCESS: {
             return {

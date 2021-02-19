@@ -2,10 +2,11 @@ import {
     USER_PENDING,
     AUTH_ERROR,
     AUTH_SUCCESS,
-    USER_LOGOUT
+    USER_LOGOUT,
+    USER_ASYNC_STORAGE
 } from '../constants/users';
 import axiosConfig from '../../configs/axios';
-import User from '../../model/User'
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const authenticationUser = (user, route = '') => {
     return async dispatch => {
@@ -15,23 +16,10 @@ export const authenticationUser = (user, route = '') => {
             const { id, email } = response.data.data;
             const { client, uid } = response.headers;
             const accessToken = response.headers['access-token'];
-            let userToSave;
-            const existUser = new User(id, email);
-            const userExist = await existUser.getUser(id);
-            if (userExist !== {})  {
-                existUser.setAccessToken(accessToken);
-                existUser.setClient(client);
-                existUser.setUid(uid);
-                userToSave = existUser;
-                await existUser.update()
-            } else {
-                const newUser = new User( id, email, accessToken, client, uid);
-                userToSave = newUser;
-                await newUser.save();
-            }
+            const userToSave = { id, email, client, uid, accessToken };
+            await AsyncStorage.setItem(USER_ASYNC_STORAGE, JSON.stringify(userToSave))
             return dispatch({ type: AUTH_SUCCESS, payload: {user: userToSave} });
         } catch (error) {
-            console.log('error in action', error)
             return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
         }
     }

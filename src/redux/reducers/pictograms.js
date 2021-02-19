@@ -8,7 +8,8 @@ import {
     UPDATE_PICTOGRAM_ERROR,
     DELETE_PICTOGRAM_SUCCESS,
     DELETE_PICTOGRAM_ERROR,
-    FILTER_PICTOGRAMS_BY_CATEGORY
+    FILTER_PICTOGRAMS_BY_CATEGORY,
+    SET_ALL_PICTOGRAMS
     } from '../constants/pictograms';
 
 const initialState = {
@@ -16,10 +17,6 @@ const initialState = {
     pictograms: [],
     filteredPictograms: [],
     changed: false,
-    previousPage: 0, 
-    currentPage: 0, 
-    totalPage: 0, 
-    nextPage: 0,
     err: null
 }
 
@@ -48,10 +45,6 @@ function pictogramsReducer(state = initialState, {type, payload}) {
                 pictograms: payload.pictograms,
                 filteredPictograms: payload.pictograms,
                 changed: false,
-                previousPage: payload.previousPage, 
-                currentPage: payload.currentPage, 
-                totalPage: payload.totalPage, 
-                nextPage: payload.nextPage,
             }
         }
         case ADD_PICTOGRAM_SUCCESS: {
@@ -88,6 +81,12 @@ function pictogramsReducer(state = initialState, {type, payload}) {
             return {
                 ...state,
                 filteredPictograms: state.pictograms.filter( pic => pic.relationships.classifiable.data.id === payload.idCategory)
+            }
+        }
+        case SET_ALL_PICTOGRAMS: {
+            return {
+                ...state,
+                filteredPictograms: state.pictograms
             }
         }
         default:

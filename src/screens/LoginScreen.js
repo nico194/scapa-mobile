@@ -31,66 +31,61 @@ export default function LoginScreen({ navigation }) {
 
     return (
         <Container>
-            <CustomHeader title='SCAPA APP'/>
-            <ImageBackground 
-                source={image} 
-                style={styles.backgroundImage} >
-                <Content 
-                    padder 
-                    contentContainerStyle={styles.cardForm}>
-                    <View padder contentContainerStyle={{ position: 'absolute', top: 0 }}>
-                        <Text style={styles.headTitle}>Bienvenido a SCAPA</Text>
-                        <Text style={{ textAlign: 'center', marginBottom: 20, fontWeight: 'bold' }}>Sistema de Comunicación Aumentativo y Alternativo para personas con Autismo</Text>
-                    </View>
-                    <Card>
-                        <CardItem header>
-                            <Text style={styles.title}>Iniciar Sesión</Text>
-                        </CardItem>
-                        {
-                            error && !loading &&
-                                <CardItem >
-                                    <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
-                                </CardItem>
-                        }
-                        <CardItem>
-                            <Body>
-                                <Form style={{ alignSelf: 'stretch' }}>
-                                    <Item floatingLabel>
-                                        <Label>Email</Label>
-                                        <Input onChangeText={ (value) => setEmail(value) } />
-                                    </Item>
-                                    <Item floatingLabel>
-                                        <Label>Contraseña</Label>
-                                        <Input onChangeText={ (value) => setPassword(value) } />
-                                    </Item>
-                                </Form> 
-                            </Body>
-                        </CardItem>
-                        <CardItem >
-                            <Left>
-                                <Button 
-                                    transparent
-                                    primary
-                                    onPress={ () => navigation.navigate('Register') }
-                                    >
-                                    <Text>Registrarse</Text>
-                                </Button>
-                            </Left>
-                            <Right>
-                                <Button primary onPress={handlerSignIn}>
-                                    <Text>Ingresar</Text>
-                                    { 
-                                        loading ?
-                                            <Spinner color='white'/>
-                                            :
-                                            <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
-                                    }
-                                </Button>
-                            </Right>
-                        </CardItem>
-                    </Card>
-                </Content>
-            </ImageBackground>
+            <Content 
+                padder 
+                contentContainerStyle={styles.cardForm}>
+                <View padder contentContainerStyle={{ position: 'absolute', top: 0 }}>
+                    <Text style={styles.headTitle}>Bienvenido a SCAPA</Text>
+                    <Text style={styles.subHeadTitle}>Sistema de Comunicación Aumentativo y Alternativo para personas con Autismo</Text>
+                </View>
+                <Card>
+                    <CardItem header>
+                        <Text style={styles.title}>Iniciar Sesión</Text>
+                    </CardItem>
+                    {
+                        error && !loading &&
+                            <CardItem >
+                                <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
+                            </CardItem>
+                    }
+                    <CardItem>
+                        <Body>
+                            <Form style={{ alignSelf: 'stretch' }}>
+                                <Item floatingLabel>
+                                    <Label>Email</Label>
+                                    <Input onChangeText={ (value) => setEmail(value) } />
+                                </Item>
+                                <Item floatingLabel>
+                                    <Label>Contraseña</Label>
+                                    <Input onChangeText={ (value) => setPassword(value) } />
+                                </Item>
+                            </Form> 
+                        </Body>
+                    </CardItem>
+                    <CardItem >
+                        <Left>
+                            <Button 
+                                transparent
+                                info
+                                onPress={ () => navigation.navigate('Register') }
+                                >
+                                <Text>Registrarse</Text>
+                            </Button>
+                        </Left>
+                        <Right>
+                            <Button info onPress={handlerSignIn}>
+                                <Text>Ingresar</Text>
+                                { 
+                                    loading ?
+                                        <Spinner color='white'/>
+                                        :
+                                        <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
+                                }
+                            </Button>
+                        </Right>
+                    </CardItem>
+                </Card>
+            </Content>
         </Container>
     )
 }
@@ -110,7 +105,14 @@ const styles = StyleSheet.create({
         width: '100%',
         textAlign:'center',
         fontSize: 45,
-        fontWeight: 'bold'
+        fontWeight: 'bold',
+        color: '#fff' 
+    },
+    subHeadTitle: { 
+        textAlign: 'center', 
+        marginBottom: 20, 
+        fontWeight: 'bold',
+        color: '#fff' 
     },
     backgroundImage: {
         width: Dimensions.get('window').width, 

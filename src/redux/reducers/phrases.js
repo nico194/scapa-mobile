@@ -8,7 +8,7 @@ import {
     UPDATE_ROUTINE_ERROR,
     DELETE_ROUTINE_SUCCESS,
     DELETE_ROUTINE_ERROR
-} from '../constants/routines';
+} from '../constants/phrases';
 
 const initialState = {
     loadingRoutines: false,
@@ -18,7 +18,7 @@ const initialState = {
     lastId: 0
 }
 
-const routinesReducer = (state = initialState, { type, payload }) => {
+const phasesReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case FETCH_ROUTINES_PENDING:
             return {
@@ -74,4 +74,4 @@ const routinesReducer = (state = initialState, { type, payload }) => {
     }
 }
 
-export default routinesReducer;
+export default phasesReducer;

@@ -33,65 +33,60 @@ export default function RegisterScreen({ navigation }) {
     
     return (
         <Container>
-            <CustomHeader hasBack={true} onClickBack={ () => navigation.navigate('Login')} title='Registrarse' />
-            <ImageBackground 
-                source={image} 
-                style={styles.backgroundImage} >
-                <Content 
-                    padder 
-                    contentContainerStyle={styles.cardForm}>
-                    <Card>
-                        <CardItem header>
-                            <Text style={styles.title}>Registrarse</Text>
-                        </CardItem>
-                        {
-                            error && !loading &&
-                                <CardItem >
-                                    <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
-                                </CardItem>
-                        }
-                        <CardItem>
-                            <Body>
-                                <Form style={{ alignSelf: 'stretch' }}>
-                                    <Item stackedLabel>
-                                        <Label style={{marginLeft: 5}}>Email</Label>
-                                        <Input onChangeText={ (value) => setEmail(value)} />
-                                    </Item>
-                                    <Item stackedLabel>
-                                        <Label style={{marginLeft: 5}}>Contraseña</Label>
-                                        <Input onChangeText={ (value) => setPassword(value)}/>
-                                    </Item>
-                                    <Item stackedLabel>
-                                        <Label style={{marginLeft: 5}}>Confirmar Contraseña</Label>
-                                        <Input onChangeText={ (value) => setPasswordRepeat(value)}/>
-                                    </Item>
-                                </Form> 
-                            </Body>
-                        </CardItem>
-                        <CardItem >
-                            <Left>
-                                <Button 
-                                    transparent
-                                    primary
-                                    onPress={ () => navigation.navigate('Login') }
-                                    >
-                                    <Text>Volver</Text>
-                                </Button>
-                            </Left>
-                            <Right>
-                                <Button primary onPress={handlerSignUp} >
-                                    <Text>Ingresar</Text>
-                                    { loading ?
-                                        <Spinner color='white'/>
-                                        :
-                                        <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
-                                    }
-                                </Button>
-                            </Right>
-                        </CardItem>
-                    </Card>
-                </Content>
-            </ImageBackground>
+            <Content 
+                padder 
+                contentContainerStyle={styles.cardForm}>
+                <Card>
+                    <CardItem header>
+                        <Text style={styles.title}>Registrarse</Text>
+                    </CardItem>
+                    {
+                        error && !loading &&
+                            <CardItem >
+                                <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
+                            </CardItem>
+                    }
+                    <CardItem>
+                        <Body>
+                            <Form style={{ alignSelf: 'stretch' }}>
+                                <Item stackedLabel>
+                                    <Label style={{marginLeft: 5}}>Email</Label>
+                                    <Input onChangeText={ (value) => setEmail(value)} />
+                                </Item>
+                                <Item stackedLabel>
+                                    <Label style={{marginLeft: 5}}>Contraseña</Label>
+                                    <Input onChangeText={ (value) => setPassword(value)}/>
+                                </Item>
+                                <Item stackedLabel>
+                                    <Label style={{marginLeft: 5}}>Confirmar Contraseña</Label>
+                                    <Input onChangeText={ (value) => setPasswordRepeat(value)}/>
+                                </Item>
+                            </Form> 
+                        </Body>
+                    </CardItem>
+                    <CardItem >
+                        <Left>
+                            <Button 
+                                transparent
+                                primary
+                                onPress={ () => navigation.navigate('Login') }
+                                >
+                                <Text>Volver</Text>
+                            </Button>
+                        </Left>
+                        <Right>
+                            <Button primary onPress={handlerSignUp} >
+                                <Text>Ingresar</Text>
+                                { loading ?
+                                    <Spinner color='white'/>
+                                    :
+                                    <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
+                                }
+                            </Button>
+                        </Right>
+                    </CardItem>
+                </Card>
+            </Content>
         </Container>
     )
 }

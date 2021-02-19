@@ -3,3 +3,5 @@ export const AUTH_ERROR = 'AUTH_ERROR';
 
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
 export const USER_LOGOUT = 'USER_LOGOUT';
+
+export const USER_ASYNC_STORAGE = 'USER_ASYNC_STORAGE';
