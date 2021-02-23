@@ -1,7 +1,11 @@
 export const USER_PENDING = 'USER_PENDING';
 export const AUTH_ERROR = 'AUTH_ERROR';
 
+export const USER_IS_LOGGED = 'USER_IS_LOGGED';
+export const USER_IS_NOT_LOGGED = 'USER_IS_NOT_LOGGED';
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
 export const USER_LOGOUT = 'USER_LOGOUT';
+export const AUTH_CONFIG = 'AUTH_CONFIG';
+
 
 export const USER_ASYNC_STORAGE = 'USER_ASYNC_STORAGE';

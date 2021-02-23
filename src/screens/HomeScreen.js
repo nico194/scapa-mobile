@@ -1,113 +1,93 @@
 import React, { useState ,useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { StyleSheet, Image, View, TouchableOpacity } from 'react-native';
-import { Card, CardItem, Text, Button, H1, Input, Form, Item, Label} from 'native-base';
-import { LinearGradient } from 'expo-linear-gradient';
-import { setOrientation } from '../configs/orientation'
+import { useDispatch, useSelector } from 'react-redux';
+import { Container, Text, Button, H1, Input, Form, Item, Label, Spinner} from 'native-base';
+import CustomModal from '../components/molecules/modal/CustomModal';
+import Menu from '../components/organims/menu/Menu';
 import { MaterialIcons } from '@expo/vector-icons';
-import CustomModal from '../components/modal/CustomModal';
+import { setOrientation } from '../configs/orientation'
+import { authenticationUser, logOut } from '../redux/actions/users';
+import { checkResources } from '../redux/actions/resourses';
+import { View } from 'react-native';
 
 
 export default function HomeScreen({ navigation }) {
+
     const [modalVisible, setModalVisible] = useState(false);
-    
-    const imageButtonToSpeak = require('../../assets/speakButtonImage.png');
-    const imageButtonToMemories = require('../../assets/memoriesButtonImage.png');
-    const imageButtonToRoutines = require('../../assets/routinesButtonImage.png');;
+    const [password, setPassword] = useState('')
 
-    const imageSpeak = Image.resolveAssetSource(imageButtonToSpeak).uri;
-    const imageMemories = Image.resolveAssetSource(imageButtonToMemories).uri;
-    const imageRoutines = Image.resolveAssetSource(imageButtonToRoutines).uri;
-
+    const dispatch = useDispatch();
+    const { user, canConfig, loadingUser } = useSelector(state => state.users);
+    const { hasResourses } = useSelector(state => state.resourses)
 
     useEffect(() => {
         setOrientation(navigation, 'landspace')
     }, [navigation]);
 
+    useEffect(() => {
+        dispatch(checkResources());
+    }, [dispatch]);
+
+    useEffect(() => {
+        !hasResourses && navigation.navigate('LoadingResourse')
+    }, [hasResourses])
+
+    useEffect(() => {
+        if (canConfig) {
+            setModalVisible(false)
+            navigation.navigate('Config');
+        }
+    }, [canConfig])
+
     const goToConfig = () => {
-        setModalVisible(false);
-        navigation.navigate('Config');
+        dispatch(authenticationUser({ email: user.email, password}, '/sign_in', true));
     }
 
     const openModal = () => {
         setModalVisible(true)
     }
 
+    const hideModal = () => {
+        setModalVisible(false);
+    }
+
     return (
-        <LinearGradient style={{ flex: 1 }}  colors={['#62B1F6', '#2F62FB']}>
-            <Button onPress={openModal} style={{ position: 'absolute', top: 0, right: 0 }}>                
-                <MaterialIcons name='settings' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
-                <Text style={{ fontSize: 18 }}>Ir a configuraciones</Text>
-            </Button>
+        <Container>
+            <View style={{ flex: 1, flexDirection: 'row', position: 'absolute', bottom: 0, right: 0 }}>
+                <Button dark onPress={openModal}>                
+                    <MaterialIcons name='settings' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
+                    <Text style={{ fontSize: 18 }}>Ir a configuraciones</Text>
+                </Button>
+                <Button warning onPress={() => dispatch(logOut())} style={{ marginLeft: 10 }} >                
+                    <Text style={{ fontSize: 18 }}>Salir</Text>
+                    { loadingUser ?
+                         <Spinner color='white' />
+                         :
+                         <MaterialIcons name='logout' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
+                    }
+                </Button>
+            </View>
             <CustomModal modalVisible={modalVisible}>
+                <H1 style={{ marginBottom: 20}}>Ingrese su contraseña de usuario:</H1>
                 <Form>
-                    <H1 style={{ marginBottom: 20}}>Ingrese su contraseña de usuario:</H1>
                     <Text style={{ marginBottom: 20}}>Para ingresar a la sesión de configuración primero debe ingresar la contraseña</Text>
                     <Item style={{ marginBottom: 40}} floatingLabel>
                         <Label>Contraseña</Label>
-                        <Input />
+                        <Input onChangeText={ value => setPassword(value)}/>
                     </Item>
-                    <Button onPress={goToConfig} block>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent:'space-between' }}>
+                        <Button warning onPress={hideModal}>
+                            <Text>Cancelar</Text>
+                        </Button>
+                        <Button dark onPress={goToConfig}>
                         <Text>Ingresar</Text>
-                    </Button>
+                            { loadingUser && <Spinner color='white' />}
+                        </Button>
+                    </View>
+                    
                 </Form>
             </CustomModal>
-            <View style={styles.centerComponents}>
-                <TouchableOpacity onPress={ () => alert("This is Card Routines")}>
-                    <Card style={{ marginVertical: 20 }}>
-                        <CardItem>
-                            <Image source={{ uri: imageRoutines}} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                        </CardItem>
-                        <CardItem bordered footer>
-                            <Text style={{ width: 200 ,textAlign: 'center' }}>Rutinas</Text>
-                        </CardItem>
-                    </Card>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={ () => navigation.navigate('Speak')}>
-                    <Card style={{ marginVertical: 20 }}>
-                        <CardItem>
-                            <Image source={{ uri: imageSpeak }} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                        </CardItem>
-                        <CardItem bordered footer>
-                            <Text style={{ width: 200 ,textAlign: 'center' }}>Empezemos a Hablar</Text>
-                        </CardItem>
-                    </Card>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={ () => alert("This is Card Memories")}>
-                    <Card style={{ marginVertical: 20 }}>
-                        <CardItem>
-                            <Image source={{ uri: imageMemories}} resizeMode='contain' style={{ width: 200, height: 150 }} />
-                        </CardItem>
-                        <CardItem bordered footer>
-                            <Text style={{ width: 200 ,textAlign: 'center' }}>Recuerdos</Text>
-                        </CardItem>
-                    </Card>
-                </TouchableOpacity>
-            </View>
-        </LinearGradient>
+            <Menu navigation={navigation}/>
+        </Container>
     )
 
 }
-
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        flexDirection: 'column'
-    },  
-    centerComponents: {
-        flex: 1,
-        justifyContent: 'space-around',
-        alignItems: 'center',
-        flexDirection: 'row',
-    },
-    modalStyle: {
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        flex: 1,
-    },
-    modalStyle: {
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        flex: 1,
-        margin: 50,
-        padding: 20
-    }
-})

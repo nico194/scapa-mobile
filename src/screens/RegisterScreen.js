@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { authenticationUser } from '../redux/actions/users'
-import { StyleSheet, ImageBackground, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
-import CustomHeader from '../components/header/CustomHeader';
 import { setOrientation } from '../configs/orientation';
 import { getErrorMessage } from '../configs/manageError';
 
@@ -16,7 +15,7 @@ export default function RegisterScreen({ navigation }) {
     const image = require('../../assets/backgroundLogin.png');
 
     const dispatch = useDispatch();
-    const { loading, auth, error } = useSelector(state => state.users)
+    const { loadingUser, isLogged, error } = useSelector(state => state.users)
 
     useEffect(() => {
         setOrientation(navigation, 'portrait')
@@ -28,8 +27,8 @@ export default function RegisterScreen({ navigation }) {
     }
     
     useEffect(() => {
-        auth && navigation.navigate('LoadingResourse');
-    }, [auth])
+        isLogged && navigation.navigate('LoadingResourse');
+    }, [isLogged])
     
     return (
         <Container>
@@ -41,7 +40,7 @@ export default function RegisterScreen({ navigation }) {
                         <Text style={styles.title}>Registrarse</Text>
                     </CardItem>
                     {
-                        error && !loading &&
+                        error && !loadingUser &&
                             <CardItem >
                                 <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
                             </CardItem>
@@ -68,16 +67,16 @@ export default function RegisterScreen({ navigation }) {
                         <Left>
                             <Button 
                                 transparent
-                                primary
+                                dark
                                 onPress={ () => navigation.navigate('Login') }
                                 >
                                 <Text>Volver</Text>
                             </Button>
                         </Left>
                         <Right>
-                            <Button primary onPress={handlerSignUp} >
+                            <Button dark onPress={handlerSignUp} >
                                 <Text>Ingresar</Text>
-                                { loading ?
+                                { loadingUser ?
                                     <Spinner color='white'/>
                                     :
                                     <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
@@ -100,9 +99,5 @@ const styles = StyleSheet.create({
         width: '100%',
         textAlign: 'center',
         fontSize: 30
-    },
-    backgroundImage: {
-        width: Dimensions.get('window').width, 
-        height: Dimensions.get('window').height
     }
 })

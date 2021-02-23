@@ -1,14 +1,16 @@
 import { combineReducers } from 'redux';
 import categoriesReducer from './categories';
 import pictogramsReducer from './pictograms';
-import UsersReducer from './users';
+import usersReducer from './users';
 import phrasesReducer from './phrases';
+import resoursesReducer from './resourses'
 
 const rootReducer = combineReducers({
     categories: categoriesReducer,
     pictograms: pictogramsReducer,
-    users: UsersReducer,
-    phrasesReducer: phrasesReducer
+    users: usersReducer,
+    phrases: phrasesReducer,
+    resourses: resoursesReducer
 });
 
 export default rootReducer;

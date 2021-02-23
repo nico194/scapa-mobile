@@ -2,50 +2,74 @@ import {
     USER_PENDING,
     AUTH_ERROR,
     AUTH_SUCCESS,
-    USER_LOGOUT
+    USER_LOGOUT,
+    AUTH_CONFIG,
+    USER_IS_LOGGED,
+    USER_IS_NOT_LOGGED
 } from '../constants/users';
-
-
-// const regExp = new RegExp(`^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$`);
-// const isBase64 = localStorage.getItem('user') !== null ? regExp.test(localStorage.getItem('user')) : false;
  
 const initialState = {
-    loading: false,
+    loadingUser: false,
+    error: null,
     user: {},
-    auth: false,
-    error: null
+    isLogged: false,
+    canConfig: false,
 }
 
-const UsersReducer = (state = initialState, { type, payload }) => {
+const usersReducer = (state = initialState, { type, payload }) => {
     switch (type) {
         case USER_PENDING:{
             return {
                 ...state,
-                loading: true
+                loadingUser: true
             }
         }
         case AUTH_ERROR: {
             return {
                 ...state,
-                loading: false,
+                loadingUser: false,
                 error: payload.error
             }
         }
+        case USER_IS_LOGGED:
+            return {
+                ...state,
+                loadingUser: false,
+                isLogged: true,
+                user: payload.user,
+                canConfig: false
+            }
+        case USER_IS_NOT_LOGGED:
+            return {
+                ...state,
+                loadingUser: false,
+                isLogged: false,
+                canConfig: false
+            }
         case AUTH_SUCCESS: 
             return {
                 ...state,
-                loading: false,
+                loadingUser: false,
                 user: payload.user,
-                auth: true,
+                isLogged: true,
+                canConfig: false
+            } 
+        case AUTH_CONFIG: 
+            return {
+                ...state,
+                loadingUser: false,
+                canConfig: payload.canConfig                                                                                                                                                                                                                                       ,
             } 
         case USER_LOGOUT:
             return {
                 ...state,
-                user: {}
+                user: {},
+                loadingUser: false,
+                isLogged: false
             }
         default:
             return state
     }
 }
 
-export default UsersReducer;
+export default usersReducer;

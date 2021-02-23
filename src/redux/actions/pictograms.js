@@ -95,4 +95,5 @@ export const updatePictogram = (pictogramToUpdate, { accessToken, client, uid })
     }
 }
 
-export const filterPictogramsByCategory = idCategory => dispatch => dispatch({ type: FILTER_PICTOGRAMS_BY_CATEGORY, payload: {idCategory }})
+export const filterPictogramsByCategory = (idCategory, isCustom) => dispatch => dispatch({ type: FILTER_PICTOGRAMS_BY_CATEGORY, payload: {idCategory, isCustom}})
+

@@ -80,7 +80,12 @@ function pictogramsReducer(state = initialState, {type, payload}) {
         case FILTER_PICTOGRAMS_BY_CATEGORY: {
             return {
                 ...state,
-                filteredPictograms: state.pictograms.filter( pic => pic.relationships.classifiable.data.id === payload.idCategory)
+                filteredPictograms: 
+                    payload.isCustom ?
+                        state.pictograms.filter( pic => pic.attributes['is_custom'] && pic.relationships.classifiable.data.id === payload.idCategory)
+                        :
+                        state.pictograms.filter( pic => !pic.attributes['is_custom'] && pic.relationships.classifiable.data.id === payload.idCategory) 
+                
             }
         }
         case SET_ALL_PICTOGRAMS: {

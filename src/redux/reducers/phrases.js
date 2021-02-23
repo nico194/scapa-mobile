@@ -7,19 +7,33 @@ import {
     UPDATE_ROUTINE_SUCCESS,
     UPDATE_ROUTINE_ERROR,
     DELETE_ROUTINE_SUCCESS,
-    DELETE_ROUTINE_ERROR
+    DELETE_ROUTINE_ERROR,
+    ADD_PICTOGRAM_TO_PHRASE,
+    REMOVE_PICTOGRAM_TO_PHRASE
 } from '../constants/phrases';
 
 const initialState = {
     loadingRoutines: false,
     err: null,
     routines: [],
+    memories: [],
+    phrase: [],
     changed: false,
     lastId: 0
 }
 
-const phasesReducer = (state = initialState, { type, payload }) => {
+const phrasesReducer = (state = initialState, { type, payload }) => {
     switch (type) {
+        case ADD_PICTOGRAM_TO_PHRASE:
+            return {
+                ...state,
+                phrase: state.phrase.concat(payload.pictogram)
+            };
+        case REMOVE_PICTOGRAM_TO_PHRASE:
+            return {
+                ...state,
+                phrase: state.phrase.filter( (pic, index) => index !== payload.index )
+            };
         case FETCH_ROUTINES_PENDING:
             return {
                 ...state,
@@ -74,4 +88,4 @@ const phasesReducer = (state = initialState, { type, payload }) => {
     }
 }
 
-export default phasesReducer;
+export default phrasesReducer;

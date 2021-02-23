@@ -5,7 +5,7 @@ import { StyleProvider } from "native-base";
 
 import App from "../app";
 import getTheme from "../theme/components";
-import variables from "../theme/variables/commonColor";
+import material from "../theme/variables/material";
 
 export default class Setup extends Component {
   constructor() {
@@ -29,7 +29,7 @@ export default class Setup extends Component {
       return <AppLoading />;
     }
     return (
-      <StyleProvider style={getTheme(variables)}>
+      <StyleProvider style={getTheme(material)}>
         <App />
       </StyleProvider>
     );

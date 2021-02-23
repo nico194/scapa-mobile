@@ -8,12 +8,13 @@ import {
     UPDATE_CATEGORY_ERROR,
     DELETE_CATEGORY_SUCCESS,
     DELETE_CATEGORY_ERROR,
+    CHANGED_STATUS
     } from '../constants/categories';
 
 const initialState = {
     loadingCategories: false,
     categories: [],
-    changed: false,
+    changedCategories: false,
     err: null
 }
 
@@ -40,14 +41,14 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 ...state,
                 loadingCategories: false,
                 categories: payload.categories,
-                changed: false,
+                changedCategories: false,
             }
         case ADD_CATEGORY_SUCCESS: {
             return {
                 ...state,
                 loadingCategories: false,
                 categories: state.categories.concat(payload.category),
-                changed: true
+                changedCategories: true
             } 
         }
         case UPDATE_CATEGORY_SUCCESS: {
@@ -55,14 +56,20 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 ...state,
                 loadingCategories: false,
                 categories: state.categories.map( cat => cat.id === payload.category.id ? { ...cat, attributes:  { description : payload.category.attributes.description } } : cat ),
-                changed: true
+                changedCategories: true
             };
         }
         case DELETE_CATEGORY_SUCCESS: {
             return {
                 ...state,
                 loadingCategories: false,
-                categories: state.categories.filter(category => category.id !== payload.category.id)
+                categories: state.categories.filter(category => category.id !== payload.id)
+            }
+        }
+        case CHANGED_STATUS: {
+            return {
+                ...state,
+                changedCategories: false
             }
         }
         default:

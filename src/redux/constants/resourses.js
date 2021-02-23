@@ -1,0 +1,5 @@
+export const LOADING_RESOURSES = 'LOADING_RESOURSES';
+export const GET_RESOURSES = 'GET_RESOURSES';
+export const GET_RESOURSES_ERROR = 'GET_RESOURSES_ERROR';
+export const NO_GET_RESOURSES = 'NO_GET_RESOURSES'
+             

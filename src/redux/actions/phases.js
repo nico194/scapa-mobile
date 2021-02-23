@@ -7,7 +7,9 @@ import {
     UPDATE_ROUTINE_SUCCESS,
     UPDATE_ROUTINE_ERROR,
     DELETE_ROUTINE_SUCCESS,
-    DELETE_ROUTINE_ERROR
+    DELETE_ROUTINE_ERROR,
+    ADD_PICTOGRAM_TO_PHRASE,
+    REMOVE_PICTOGRAM_TO_PHRASE
 } from '../constants/phrases';
 
 export const getRoutine = () => {
@@ -33,3 +35,7 @@ export const deleteRoutine = ( routine ) => {
         dispatch({ type: DELETE_ROUTINE_SUCCESS, payload: { routine } });
     }
 }
+
+export const addPictogramToPhrase = pictogram => dispatch => dispatch({ type: ADD_PICTOGRAM_TO_PHRASE, payload: { pictogram } })
+
+export const removePictogramToPhrase = index => dispatch => dispatch({ type: REMOVE_PICTOGRAM_TO_PHRASE, payload: { index } })

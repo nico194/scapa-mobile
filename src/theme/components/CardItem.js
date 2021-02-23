@@ -151,7 +151,7 @@ export default (variables /*: * */ = variable) => {
       },
       ".bordered": {
         "NativeBase.Text": {
-          color: variables.brandPrimary,
+          color: variables.brandDark,
           fontWeight: platform === "ios" ? "600" : "500"
         },
         borderTopWidth: variables.borderWidth

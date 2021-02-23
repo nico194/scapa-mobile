@@ -1,33 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { authenticationUser } from '../redux/actions/users'
-import { StyleSheet, ImageBackground, Dimensions, View } from 'react-native';
-import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner, H1 } from 'native-base';
+import { isLoggedAction, authenticationUser } from '../redux/actions/users'
+import { StyleSheet, View } from 'react-native';
+import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
-import { setOrientation } from '../configs/orientation'
-import CustomHeader from '../components/header/CustomHeader';
+import { setOrientation } from '../configs/orientation';
 import { getErrorMessage } from '../configs/manageError';
 
 export default function LoginScreen({ navigation }) {
 
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
-    const image = require('../../assets/backgroundLogin.png')
 
     const dispatch = useDispatch();
-    const { loading, auth, error } = useSelector(state => state.users);
+    const { loadingUser, error, isLogged } = useSelector(state => state.users);
 
+    // Change orientation screen
     useEffect(() => {
         setOrientation(navigation, 'portrait')
     }, [navigation]);
+
+    // Check if the user is logged
+    useEffect(() => {
+        dispatch(isLoggedAction())
+    }, [dispatch])
+
+    // If the user is logged, move to home
+    useEffect(() => {
+        isLogged ? navigation.navigate('Home') : navigation.navigate('Login'); 
+    }, [isLogged])
     
+    // Authentication user
     const handlerSignIn = () => {
        dispatch(authenticationUser({email, password}, '/sign_in'));
     }
-
-    useEffect(() => {
-        auth && navigation.navigate('LoadingResourse');
-    }, [auth])
 
     return (
         <Container>
@@ -43,7 +49,7 @@ export default function LoginScreen({ navigation }) {
                         <Text style={styles.title}>Iniciar Sesión</Text>
                     </CardItem>
                     {
-                        error && !loading &&
+                        error && !loadingUser &&
                             <CardItem >
                                 <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
                             </CardItem>
@@ -66,17 +72,17 @@ export default function LoginScreen({ navigation }) {
                         <Left>
                             <Button 
                                 transparent
-                                info
+                                dark
                                 onPress={ () => navigation.navigate('Register') }
                                 >
                                 <Text>Registrarse</Text>
                             </Button>
                         </Left>
                         <Right>
-                            <Button info onPress={handlerSignIn}>
+                            <Button dark onPress={handlerSignIn}>
                                 <Text>Ingresar</Text>
                                 { 
-                                    loading ?
+                                    loadingUser ?
                                         <Spinner color='white'/>
                                         :
                                         <MaterialIcons name='login' size={20} color="#FFFFFF" style={{marginHorizontal:10}} />
@@ -113,9 +119,5 @@ const styles = StyleSheet.create({
         marginBottom: 20, 
         fontWeight: 'bold',
         color: '#fff' 
-    },
-    backgroundImage: {
-        width: Dimensions.get('window').width, 
-        height: Dimensions.get('window').height
     }
 })

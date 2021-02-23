@@ -8,6 +8,7 @@ import {
     UPDATE_CATEGORY_ERROR,
     DELETE_CATEGORY_SUCCESS,
     DELETE_CATEGORY_ERROR,
+    CHANGED_STATUS,
     CATEGORIES_ASYNC_STORAGE
     } from '../constants/categories';
 import axiosConfig from '../../configs/axios';
@@ -49,55 +50,69 @@ export const setCategories = () => {
 }
 
 export const addCategory = (categoryDescription, { accessToken, client, uid }) => {
-    return dispatch => {
+    return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
             'access-token': accessToken,
             client,
             uid
         }}
-        const category = {
-            category: {
-                description: categoryDescription.attributes.description
+        const categoryRequest = {
+            custom_category: {
+                description: categoryDescription,
             }
         }
-        axiosConfig.post('/admin/categories', JSON.stringify(category), headers )
-            .then( response => dispatch({ type: ADD_CATEGORY_SUCCESS, payload: {category: response.data.data}}))
-            .catch( err => dispatch({ type: ADD_CATEGORY_ERROR, payload: {err}}));
+        console.log('header: ', headers, JSON.stringify(categoryRequest))
+        try {
+            const response = await axiosConfig.post('/v1/custom_categories', JSON.stringify(categoryRequest), headers );
+            const category = { ...response.data.data, isCustom: true };
+            return dispatch({ type: ADD_CATEGORY_SUCCESS, payload: { category }})
+        } catch (err) {
+            console.log(err);
+            return dispatch({ type: ADD_CATEGORY_ERROR, payload: {err}})
+        }
     }
 }
 
 export const deleteCategory = (id, { accessToken, client, uid }) => {
-    return dispatch => {
+    return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
             'access-token': accessToken,
             client,
             uid
         }}
-        axiosConfig.delete(`/admin/categories/${id}`, headers )
-            .then( response => dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: {category: response.data.data}}))
-            .catch( err => dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err}}));
+        try {
+            const response = await axiosConfig.delete(`/v1/custom_categories/${id}`, headers);
+            return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: {id: response.data.data.id}});
+        } catch (err) {
+            console.log(err);
+            return dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err}});
+        }
     }
 }
 
-export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) => {
-    return dispatch => {
+export const updateCategory = (id, categoryDescription, { accessToken, client, uid }) => {
+    return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
-        const headers = {
-            headers: {
-                'access-token': accessToken,
-                client,
-                uid
+        const headers = { headers: {
+            'access-token': accessToken,
+            client,
+            uid
+        }}
+        const categoryRequest = {
+            custom_category: {
+                description: categoryDescription,
             }
         }
-        const category = {
-            category: {
-                description: categoryToUpdate.attributes.description
-            }
+        try {
+            const response = await axiosConfig.put(`/v1/custom_categories/${id}`, JSON.stringify(categoryRequest), headers);
+            return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { category: response.data.data }});
+        } catch (err) {
+            console.log(err);
+            return dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err}})
         }
-        axiosConfig.put(`/admin/categories/${categoryToUpdate.id}`, JSON.stringify(category), headers)
-            .then( response => dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: {category: response.data.data}}))
-            .catch( err => dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err}}));
     }
 }
+
+export const changedStatusCategory = () => dispatch => dispatch({ type: CHANGED_STATUS })

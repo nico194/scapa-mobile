@@ -1,8 +1,7 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import Navigator from './Navigator'
 import { Provider } from 'react-redux';
 import store from './redux/store'
-import { LinearGradient } from 'expo-linear-gradient';
 
 export default function app() {
 
@@ -10,6 +9,5 @@ export default function app() {
 		<Provider store={store}>
 			<Navigator />
 		</Provider>
-
   	);
 }
