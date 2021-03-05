@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { isLoggedAction, authenticationUser } from '../redux/actions/users'
-import { StyleSheet, View } from 'react-native';
+import { authenticationUser, isUserLogged } from '../redux/actions/users'
+import { StyleSheet, View, ActivityIndicator } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner } from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation';
@@ -13,26 +13,34 @@ export default function LoginScreen({ navigation }) {
     const [ password, setPassword ] = useState('');
 
     const dispatch = useDispatch();
-    const { loadingUser, error, isLogged } = useSelector(state => state.users);
+    const { loadingUser, error, isLogged, isFirstTime } = useSelector(state => state.users);
 
-    // Change orientation screen
+    useEffect(() => {
+        dispatch(isUserLogged());
+    }, [dispatch])
+
+    useEffect(() => {
+        isLogged && navigation.navigate('Home');
+    }, [isLogged])
+
     useEffect(() => {
         setOrientation(navigation, 'portrait')
     }, [navigation]);
-
-    // Check if the user is logged
-    useEffect(() => {
-        dispatch(isLoggedAction())
-    }, [dispatch])
-
-    // If the user is logged, move to home
-    useEffect(() => {
-        isLogged ? navigation.navigate('Home') : navigation.navigate('Login'); 
-    }, [isLogged])
     
-    // Authentication user
     const handlerSignIn = () => {
        dispatch(authenticationUser({email, password}, '/sign_in'));
+    }
+
+    useEffect(() => {
+        isFirstTime && navigation.navigate('LoadingResourse');
+    }, [isFirstTime])
+
+    if(loadingUser && !isLogged) {
+        return (
+            <Container style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator size="large" color="#fff" />
+            </Container>
+        )
     }
 
     return (
@@ -63,7 +71,7 @@ export default function LoginScreen({ navigation }) {
                                 </Item>
                                 <Item floatingLabel>
                                     <Label>Contraseña</Label>
-                                    <Input onChangeText={ (value) => setPassword(value) } />
+                                    <Input secureTextEntry={true} onChangeText={ (value) => setPassword(value) } />
                                 </Item>
                             </Form> 
                         </Body>

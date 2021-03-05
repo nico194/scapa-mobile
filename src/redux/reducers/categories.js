@@ -8,13 +8,15 @@ import {
     UPDATE_CATEGORY_ERROR,
     DELETE_CATEGORY_SUCCESS,
     DELETE_CATEGORY_ERROR,
-    CHANGED_STATUS
+    CHANGED_STATUS,
+    RESET_STATE
     } from '../constants/categories';
 
 const initialState = {
     loadingCategories: false,
     categories: [],
     changedCategories: false,
+    categoriesIsReady: false,
     err: null
 }
 
@@ -33,7 +35,8 @@ function categoriesReducer(state = initialState, {type, payload}) {
             return {
                 ...state,
                 loadingCategories: false,
-                err: payload.err
+                err: payload.err,
+                categoriesIsReady: false
             }
         }
         case FETCH_CATEGORIES_SUCCESS:
@@ -42,6 +45,7 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 loadingCategories: false,
                 categories: payload.categories,
                 changedCategories: false,
+                categoriesIsReady: true
             }
         case ADD_CATEGORY_SUCCESS: {
             return {
@@ -71,6 +75,9 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 ...state,
                 changedCategories: false
             }
+        }
+        case RESET_STATE: {
+            return state = initialState
         }
         default:
             return state;

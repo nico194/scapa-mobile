@@ -27,7 +27,7 @@ export default function SpeakScreen({ navigation }) {
                 </View>
             </View>
             <View style={styles.containerPictograms}>
-                <PictogramList />
+                <PictogramList isCRUD={false} />
             </View>
             <View style={styles.containerCategories}>
                 <CategoriesFilter />
@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#4682b4'
+        backgroundColor: '#191970'
     },
     containerPictograms: {
         flex: 4,
@@ -51,6 +51,6 @@ const styles = StyleSheet.create({
     containerCategories: {
         flex: 0.7,
         justifyContent: 'center',      
-        backgroundColor: '#4682b4'
+        backgroundColor: '#191970'
     }
 });

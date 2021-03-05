@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Text } from 'native-base';
+import { Button, Spinner, Text } from 'native-base';
 import Category from '../../molecules/category/Category';
-import { setAllPictograms, filterPictogramsByCategory } from '../../../redux/actions/pictograms';
+import { getCategories } from '../../../redux/actions/categories';
+import { getPictograms, filterPictogramsByCategory } from '../../../redux/actions/pictograms';
 
 export default function CategoriesFilter() {
 
     const [ categoryIndex, setCategoryIndex ] = useState(-1)
 
     const dispatch = useDispatch();
-    const { categories } = useSelector(state => state.categories)
+    const { loadingCategories, categories } = useSelector(state => state.categories)
+
+    useEffect(() => {
+        dispatch(getCategories())
+    }, [dispatch])
 
     const allPictograms = () => {
         setCategoryIndex(-1);
-        dispatch(setAllPictograms());
+        dispatch(getPictograms());
     }
 
     const filterByCategory = (id, index, isCustom) => {
@@ -37,16 +42,21 @@ export default function CategoriesFilter() {
 
     return (
         <ScrollView horizontal>
-            <View style={styles.content}>
-                <Button 
-                    rounded     
-                    warning={ categoryIndex === -1 }
-                    onPress={() => allPictograms()} 
-                    style={{ alignSelf: 'center' }}>
-                    <Text>Todos</Text>
-                </Button>
-                { categoriesFilter }
-            </View>
+            {
+                loadingCategories ? 
+                    <Spinner color='#fff' />
+                    :
+                    <View style={styles.content}>
+                        <Button 
+                            rounded     
+                            warning={ categoryIndex === -1 }
+                            onPress={() => allPictograms()} 
+                            style={{ alignSelf: 'center' }}>
+                            <Text>Todos</Text>
+                        </Button>
+                        { categoriesFilter }
+                    </View>
+            }
         </ScrollView>
     )
 }

@@ -3,7 +3,8 @@ import {
     AUTH_ERROR,
     AUTH_SUCCESS,
     USER_LOGOUT,
-    AUTH_CONFIG,
+    INIT_HOME,
+    PASSWORD_VERIFIED,
     USER_IS_LOGGED,
     USER_IS_NOT_LOGGED
 } from '../constants/users';
@@ -14,6 +15,7 @@ const initialState = {
     user: {},
     isLogged: false,
     canConfig: false,
+    isFirstTime: false
 }
 
 const usersReducer = (state = initialState, { type, payload }) => {
@@ -51,22 +53,22 @@ const usersReducer = (state = initialState, { type, payload }) => {
                 ...state,
                 loadingUser: false,
                 user: payload.user,
-                isLogged: true,
+                isFirstTime: true,
+            } 
+        case PASSWORD_VERIFIED: 
+            return {
+                ...state,
+                loadingUser: false,
+                canConfig: true                                                                                                                                                                                                                                      ,
+            } 
+        case INIT_HOME: {
+            return {
+                ...state,
                 canConfig: false
-            } 
-        case AUTH_CONFIG: 
-            return {
-                ...state,
-                loadingUser: false,
-                canConfig: payload.canConfig                                                                                                                                                                                                                                       ,
-            } 
-        case USER_LOGOUT:
-            return {
-                ...state,
-                user: {},
-                loadingUser: false,
-                isLogged: false
             }
+        }
+        case USER_LOGOUT:
+            return state = initialState;
         default:
             return state
     }

@@ -1,10 +1,10 @@
 import React from 'react'
-import { ScrollView, View } from 'react-native';
+import { ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCategory, updateCategory } from '../../../redux/actions/categories';
+import { deleteCategory } from '../../../redux/actions/categories';
 import CategoryToList from '../../molecules/category-to-list/CategoryToList';
 
-export default function CategoryList({ navigation, setId, setCategoryDescription, setShowAddCategory, setOperation }) {
+export default function CategoryList({ navigation, setCategory, setShowAddCategory, setOperation }) {
 
 
     const dispatch = useDispatch();
@@ -16,18 +16,17 @@ export default function CategoryList({ navigation, setId, setCategoryDescription
             <CategoryToList 
                 key={index}
                 loading={loadingCategories}
-                onPressCategory={() => openModadToEdit(category.id, category.attributes.description)}
-                onPressArrow={() => {}}
+                onPressCategory={() => openModadToEdit(category)}
+                onPressArrow={() => navigation.navigate('CustomPictograms', { idCategory : category.id })}
                 onPressDelete={() => dispatch(deleteCategory(category.id, user))}
                 description={category.attributes.description}
             />
         )
     });
 
-    const openModadToEdit = (id, description) => {
+    const openModadToEdit = category => {
         setOperation('Editar');
-        setId(id);
-        setCategoryDescription(description);
+        setCategory({ id: category.id, description: category.attributes.description })
         setShowAddCategory(true);
     }
 

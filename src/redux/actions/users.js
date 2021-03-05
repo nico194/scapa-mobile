@@ -4,34 +4,32 @@ import {
     AUTH_SUCCESS,
     USER_IS_LOGGED,
     USER_IS_NOT_LOGGED,
-    AUTH_CONFIG,
+    INIT_HOME,
+    PASSWORD_VERIFIED,
     USER_LOGOUT,
     USER_ASYNC_STORAGE
 } from '../constants/users';
 import axiosConfig from '../../configs/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { PICTOGRAMS_ASYNC_STORAGE } from '../constants/pictograms';
-import { CATEGORIES_ASYNC_STORAGE } from '../constants/categories';
 
-export const isLoggedAction = () => {
+export const isUserLogged = () => {
     return async dispatch => {
         dispatch({ type: USER_PENDING });
         try {
-            const userInAsync = await AsyncStorage.getItem(USER_ASYNC_STORAGE);
-            if(userInAsync) {
-                const user = JSON.parse(userInAsync);
-                return Object.keys(user).length > 0 ? dispatch({ type: USER_IS_LOGGED, payload: {user} }) : dispatch({ type: USER_IS_NOT_LOGGED });
+            const user = await AsyncStorage.getItem(USER_ASYNC_STORAGE);
+            if(user !== null && Object.keys(JSON.parse(user)).length) {
+                return dispatch({ type: USER_IS_LOGGED, payload: { user } })
             } else {
-               return dispatch({ type: USER_IS_NOT_LOGGED })
+                return dispatch({ type: USER_IS_NOT_LOGGED })
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
             return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
         }
-    }
+    }    
 }
 
-export const authenticationUser = (user, route = '', config = false) => {
+export const authenticationUser = (user, route = '') => {
     return async dispatch => {
         dispatch({ type: USER_PENDING });     
         try {
@@ -41,7 +39,7 @@ export const authenticationUser = (user, route = '', config = false) => {
             const accessToken = response.headers['access-token'];
             const userToSave = { id, email, client, uid, accessToken };
             await AsyncStorage.setItem(USER_ASYNC_STORAGE, JSON.stringify(userToSave))
-            return config ? dispatch({ type: AUTH_CONFIG, payload: { canConfig: true } }) : dispatch({ type: AUTH_SUCCESS, payload: {user: userToSave} });
+            return dispatch({ type: AUTH_SUCCESS, payload: {user: {id, email, client, uid, accessToken}} });
         } catch (error) {
             console.log(error);
             return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
@@ -49,24 +47,32 @@ export const authenticationUser = (user, route = '', config = false) => {
     }
 }
 
-export const returnToHomeAction = () => dispatch => dispatch({type: AUTH_CONFIG, payload: { canConfig: false } }) 
+export const initHome = () => dispatch => dispatch({ type: INIT_HOME })
 
-export const getVoiceStatus = () => {
-    
+export const verifyPassword = ( password ) => {
+    return async dispatch => {
+        dispatch({ type: USER_PENDING });
+        try {
+            const user = await AsyncStorage.getItem(USER_ASYNC_STORAGE);
+            const email = JSON.parse(user).email;
+            const response = await axiosConfig.post(`/v1/auth/sign_in`, JSON.stringify({ email, password }));
+            return response.status === 200 && dispatch({ type: PASSWORD_VERIFIED })
+        } catch (error) {
+            console.log(error);
+            return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
+        }
+    }
 }
 
-export const logOut = () => {
+export const logOutUser = () => {
     return async dispatch => {
         dispatch({ type: USER_PENDING });  
         try {
             await AsyncStorage.setItem(USER_ASYNC_STORAGE, JSON.stringify({}))
-            await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify({}))
-            await AsyncStorage.setItem(CATEGORIES_ASYNC_STORAGE, JSON.stringify({}))
-            return dispatch({ type: USER_LOGOUT, payload: { user: {} } })
+            return dispatch({ type: USER_LOGOUT })
         } catch (error) {
             console.log(error);
-            return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
+            return dispatch({ type: AUTH_ERROR, payload: {error: error.response}});
         }   
     }
 }
-

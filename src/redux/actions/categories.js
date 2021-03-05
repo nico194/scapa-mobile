@@ -9,7 +9,8 @@ import {
     DELETE_CATEGORY_SUCCESS,
     DELETE_CATEGORY_ERROR,
     CHANGED_STATUS,
-    CATEGORIES_ASYNC_STORAGE
+    CATEGORIES_ASYNC_STORAGE,
+    RESET_STATE
     } from '../constants/categories';
 import axiosConfig from '../../configs/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -37,11 +38,12 @@ export const getAllCategories = ({ accessToken, client, uid }) => {
     }
 }
 
-export const setCategories = () => {
+export const getCategories = () => {
     return async dispatch => {
+        dispatch({ type: FETCH_CATEGORIES_PENDING });
         try {
             const categories = await AsyncStorage.getItem(CATEGORIES_ASYNC_STORAGE);
-            return dispatch({ type: FETCH_CATEGORIES_SUCCESS, payload: { categories }})
+            return dispatch({ type: FETCH_CATEGORIES_SUCCESS, payload: { categories: JSON.parse(categories) }});
         } catch (err) {
             console.log(err);
             return dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}})
@@ -49,7 +51,7 @@ export const setCategories = () => {
     }
 }
 
-export const addCategory = (categoryDescription, { accessToken, client, uid }) => {
+export const addCategory = (categoryToAdd, { accessToken, client, uid }) => {
     return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
@@ -59,10 +61,9 @@ export const addCategory = (categoryDescription, { accessToken, client, uid }) =
         }}
         const categoryRequest = {
             custom_category: {
-                description: categoryDescription,
+                description: categoryToAdd.description,
             }
         }
-        console.log('header: ', headers, JSON.stringify(categoryRequest))
         try {
             const response = await axiosConfig.post('/v1/custom_categories', JSON.stringify(categoryRequest), headers );
             const category = { ...response.data.data, isCustom: true };
@@ -92,7 +93,7 @@ export const deleteCategory = (id, { accessToken, client, uid }) => {
     }
 }
 
-export const updateCategory = (id, categoryDescription, { accessToken, client, uid }) => {
+export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) => {
     return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
@@ -102,11 +103,11 @@ export const updateCategory = (id, categoryDescription, { accessToken, client, u
         }}
         const categoryRequest = {
             custom_category: {
-                description: categoryDescription,
+                description: categoryToUpdate.description,
             }
         }
         try {
-            const response = await axiosConfig.put(`/v1/custom_categories/${id}`, JSON.stringify(categoryRequest), headers);
+            const response = await axiosConfig.put(`/v1/custom_categories/${categoryToUpdate.id}`, JSON.stringify(categoryRequest), headers);
             return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { category: response.data.data }});
         } catch (err) {
             console.log(err);
@@ -115,4 +116,15 @@ export const updateCategory = (id, categoryDescription, { accessToken, client, u
     }
 }
 
-export const changedStatusCategory = () => dispatch => dispatch({ type: CHANGED_STATUS })
+export const changedStatusCategory = () => dispatch => dispatch({ type: CHANGED_STATUS });
+
+export const emptyCategories = () => {
+    return async dispatch => {
+        try {
+            await AsyncStorage.setItem(CATEGORIES_ASYNC_STORAGE, JSON.stringify({}))
+            return dispatch({ type: RESET_STATE })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+}
