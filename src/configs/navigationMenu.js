@@ -15,7 +15,7 @@ export const menuNav = [
         image: imageRoutines,
     },
     {
-        label: 'Empezemos a Hablar',
+        label: 'Empecemos a Hablar',
         goto: 'Speak',
         image: imageSpeak,
     },

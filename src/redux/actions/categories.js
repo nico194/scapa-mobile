@@ -42,12 +42,30 @@ export const getCategories = () => {
     return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         try {
-            const categories = await AsyncStorage.getItem(CATEGORIES_ASYNC_STORAGE);
-            return dispatch({ type: FETCH_CATEGORIES_SUCCESS, payload: { categories: JSON.parse(categories) }});
+            const categories = await getCategoriesFromAsyncStorage();
+            return dispatch({ type: FETCH_CATEGORIES_SUCCESS, payload: { categories }});
         } catch (err) {
             console.log(err);
             return dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}})
         }
+    }
+}
+
+const getCategoriesFromAsyncStorage = async () => {
+    try {
+        const categories = await AsyncStorage.getItem(CATEGORIES_ASYNC_STORAGE);
+        return JSON.parse(categories)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const setCategoriesInAsynStorage = async (categories) => {
+    try {
+        await AsyncStorage.setItem(CATEGORIES_ASYNC_STORAGE, JSON.stringify(categories));
+        return;
+    } catch (error) {
+        console.log(error)
     }
 }
 
@@ -59,6 +77,7 @@ export const addCategory = (categoryToAdd, { accessToken, client, uid }) => {
             client,
             uid
         }}
+        console.log('ass', categoryToAdd, { accessToken, client, uid })
         const categoryRequest = {
             custom_category: {
                 description: categoryToAdd.description,
@@ -67,7 +86,10 @@ export const addCategory = (categoryToAdd, { accessToken, client, uid }) => {
         try {
             const response = await axiosConfig.post('/v1/custom_categories', JSON.stringify(categoryRequest), headers );
             const category = { ...response.data.data, isCustom: true };
-            return dispatch({ type: ADD_CATEGORY_SUCCESS, payload: { category }})
+            const categories = await getCategoriesFromAsyncStorage();
+            const newCategories = [ ...categories, category ];
+            await setCategoriesInAsynStorage(newCategories);
+            return dispatch({ type: ADD_CATEGORY_SUCCESS, payload: { categories: newCategories, category }})
         } catch (err) {
             console.log(err);
             return dispatch({ type: ADD_CATEGORY_ERROR, payload: {err}})
@@ -85,7 +107,11 @@ export const deleteCategory = (id, { accessToken, client, uid }) => {
         }}
         try {
             const response = await axiosConfig.delete(`/v1/custom_categories/${id}`, headers);
-            return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: {id: response.data.data.id}});
+            const category = { ...response.data.data, isCustom: true };
+            const categories = await getCategoriesFromAsyncStorage();
+            const categoriesFilter = categories.filter(cat => cat.id !== category.id);
+            await setCategoriesInAsynStorage(categoriesFilter);
+            return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: { categories: categoriesFilter }});
         } catch (err) {
             console.log(err);
             return dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err}});
@@ -108,7 +134,11 @@ export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) =
         }
         try {
             const response = await axiosConfig.put(`/v1/custom_categories/${categoryToUpdate.id}`, JSON.stringify(categoryRequest), headers);
-            return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { category: response.data.data }});
+            const category = { ...response.data.data, isCustom: true };
+            const categories = await getCategoriesFromAsyncStorage();
+            categories.forEach( cat => cat.id === category.id ? { ...cat, attributes:  { description : category.attributes.description } } : cat ),
+            await setCategoriesInAsynStorage(categories);
+            return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { categories }})
         } catch (err) {
             console.log(err);
             return dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err}})
@@ -121,10 +151,11 @@ export const changedStatusCategory = () => dispatch => dispatch({ type: CHANGED_
 export const emptyCategories = () => {
     return async dispatch => {
         try {
-            await AsyncStorage.setItem(CATEGORIES_ASYNC_STORAGE, JSON.stringify({}))
+            await setCategoriesInAsynStorage([]);
             return dispatch({ type: RESET_STATE })
-        } catch (error) {
-            console.log(error)
+        } catch (err) {
+            console.log(err);
+            return dispatch({ type: FETCH_CATEGORIES_ERROR, payload: {err}})
         }
     }
 }

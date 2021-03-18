@@ -3,18 +3,14 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StyleSheet, ScrollView, View } from 'react-native';
 import { H1, Spinner } from 'native-base';
 import Pictogram from '../../molecules/pictogram/Pictogram';
-import { deletePictogram, getPictograms } from '../../../redux/actions/pictograms'
+import { deletePictogram } from '../../../redux/actions/pictograms'
 import { addPictogramToPhrase } from '../../../redux/actions/phases';
 
 export default function PictogramList({ isCRUD = false, idCategory, setPictogram, setOperation, setShowAddPictogram }) {
     
     const dispatch = useDispatch()
     const { user } = useSelector(state => state.users)
-    const { filteredPictograms, loadingPictograms } = useSelector(state => state.pictograms);
-
-    useEffect(() => {
-        dispatch(getPictograms())
-    }, [dispatch])
+    const { pictograms, loadingPictograms } = useSelector(state => state.pictograms);
 
     const updatePictogram = (pictogram) => {
         const pic = {
@@ -29,7 +25,7 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
         setShowAddPictogram(true)
     }
     
-    const pictorgramsList = filteredPictograms.length > 0 && filteredPictograms.map( (pictogram, index) => {
+    const pictorgramsList = pictograms !== undefined && pictograms.map( (pictogram, index) => {
         return (
             <Pictogram 
                 key={index}
@@ -50,7 +46,7 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
                     loadingPictograms ?
                         <Spinner />
                         :
-                        filteredPictograms.length > 0 ?
+                        pictograms.length > 0 ?
                             pictorgramsList 
                             :
                             <H1 style={{ color: '#fff' }}>No hay pictogramas cargados aquí</H1>

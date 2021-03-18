@@ -15,6 +15,7 @@ import {
 const initialState = {
     loadingCategories: false,
     categories: [],
+    categorySaved : {},
     changedCategories: false,
     categoriesIsReady: false,
     err: null
@@ -47,28 +48,17 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 changedCategories: false,
                 categoriesIsReady: true
             }
-        case ADD_CATEGORY_SUCCESS: {
+        case ADD_CATEGORY_SUCCESS: 
+        case UPDATE_CATEGORY_SUCCESS:
+        case DELETE_CATEGORY_SUCCESS:
+        {
             return {
                 ...state,
                 loadingCategories: false,
-                categories: state.categories.concat(payload.category),
+                categories: payload.categories,
+                categorySaved: payload.category ? payload.category : {},
                 changedCategories: true
             } 
-        }
-        case UPDATE_CATEGORY_SUCCESS: {
-            return {
-                ...state,
-                loadingCategories: false,
-                categories: state.categories.map( cat => cat.id === payload.category.id ? { ...cat, attributes:  { description : payload.category.attributes.description } } : cat ),
-                changedCategories: true
-            };
-        }
-        case DELETE_CATEGORY_SUCCESS: {
-            return {
-                ...state,
-                loadingCategories: false,
-                categories: state.categories.filter(category => category.id !== payload.id)
-            }
         }
         case CHANGED_STATUS: {
             return {

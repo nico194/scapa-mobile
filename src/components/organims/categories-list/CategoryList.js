@@ -1,17 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteCategory } from '../../../redux/actions/categories';
+import { deleteCategory, getCategories } from '../../../redux/actions/categories';
 import CategoryToList from '../../molecules/category-to-list/CategoryToList';
 
 export default function CategoryList({ navigation, setCategory, setShowAddCategory, setOperation }) {
 
-
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.users);
-    const { loadingCategories, categories } = useSelector(state => state.categories); 
+    const { loadingCategories, categories, changedCategories } = useSelector(state => state.categories); 
 
-    const categoriesList = categories.filter( cat => cat.isCustom).map( (category, index) => {
+    useEffect(() => {
+        dispatch(getCategories());
+    }, [changedCategories])
+
+    const categoriesList = categories !== undefined && categories.filter( cat => cat.isCustom).map( (category, index) => {
         return (
             <CategoryToList 
                 key={index}

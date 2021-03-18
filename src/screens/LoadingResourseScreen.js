@@ -19,11 +19,11 @@ export default function LoadingResourseScreen({ navigation }) {
 
     useEffect(() => {
         dispatch(getAllCategories(user));
-    }, [dispatch, user])
+    }, [])
     
     useEffect(() => {
         dispatch(getAllPictograms(user))
-    }, [dispatch, user])
+    }, [])
 
     useEffect(() => {
         categoriesIsReady && pictogramsIsReady && navigation.navigate('Home');

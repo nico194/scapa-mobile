@@ -2,8 +2,10 @@ import {
     USER_PENDING,
     AUTH_ERROR,
     AUTH_SUCCESS,
+    CLEAN_ERROR,
     USER_IS_LOGGED,
     USER_IS_NOT_LOGGED,
+    GET_USER,
     INIT_HOME,
     PASSWORD_VERIFIED,
     USER_LOGOUT,
@@ -29,6 +31,19 @@ export const isUserLogged = () => {
     }    
 }
 
+export const getUserFromAsyncStorage = () => {
+    return async dispatch => {
+        dispatch({ type: USER_PENDING });
+        try {
+            const user = await AsyncStorage.getItem(USER_ASYNC_STORAGE);
+            return dispatch({ type: GET_USER, payload: { user: JSON.parse(user) } })
+        } catch (error) {
+            console.log(error);
+            return dispatch({ type: AUTH_ERROR, payload: {error: error.response}})
+        }
+    }
+}
+
 export const authenticationUser = (user, route = '') => {
     return async dispatch => {
         dispatch({ type: USER_PENDING });     
@@ -47,7 +62,9 @@ export const authenticationUser = (user, route = '') => {
     }
 }
 
-export const initHome = () => dispatch => dispatch({ type: INIT_HOME })
+export const cleanError = () => dispatch => dispatch({ type: CLEAN_ERROR });
+
+export const initHome = () => dispatch => dispatch({ type: INIT_HOME });
 
 export const verifyPassword = ( password ) => {
     return async dispatch => {

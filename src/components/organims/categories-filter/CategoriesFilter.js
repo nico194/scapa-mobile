@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import { Button, Spinner, Text } from 'native-base';
+import { Spinner } from 'native-base';
 import Category from '../../molecules/category/Category';
 import { getCategories } from '../../../redux/actions/categories';
-import { getPictograms, filterPictogramsByCategory } from '../../../redux/actions/pictograms';
+import { filterPictogramsByCategory } from '../../../redux/actions/pictograms';
+
 
 export default function CategoriesFilter() {
 
-    const [ categoryIndex, setCategoryIndex ] = useState(-1)
+    const [ categoryIndex, setCategoryIndex ] = useState(0)
 
     const dispatch = useDispatch();
-    const { loadingCategories, categories } = useSelector(state => state.categories)
+    const { user } = useSelector(state => state.users);
+    const { loadingCategories, categories } = useSelector(state => state.categories);
 
     useEffect(() => {
-        dispatch(getCategories())
-    }, [dispatch])
+        dispatch(getCategories());
+    }, [])
 
-    const allPictograms = () => {
-        setCategoryIndex(-1);
-        dispatch(getPictograms());
-    }
+    useEffect(() => {
+        categories.length > 0 && dispatch(filterPictogramsByCategory(categories[0].id, categories[0].isCustom))
+    }, [])
 
     const filterByCategory = (id, index, isCustom) => {
         setCategoryIndex(index);
@@ -47,13 +48,6 @@ export default function CategoriesFilter() {
                     <Spinner color='#fff' />
                     :
                     <View style={styles.content}>
-                        <Button 
-                            rounded     
-                            warning={ categoryIndex === -1 }
-                            onPress={() => allPictograms()} 
-                            style={{ alignSelf: 'center' }}>
-                            <Text>Todos</Text>
-                        </Button>
                         { categoriesFilter }
                     </View>
             }

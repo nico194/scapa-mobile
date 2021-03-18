@@ -1,12 +1,12 @@
 import React, { useState ,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { Container, Text, Button, H1, Input, Form, Item, Label, Spinner} from 'native-base';
 import CustomModal from '../components/molecules/modal/CustomModal';
 import Menu from '../components/organims/menu/Menu';
 import { MaterialIcons } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation'
-import { logOutUser, verifyPassword } from '../redux/actions/users';
+import { cleanError, logOutUser, verifyPassword } from '../redux/actions/users';
 import { getErrorMessage } from '../configs/manageError';
 
 export default function HomeScreen({ navigation }) {
@@ -20,7 +20,7 @@ export default function HomeScreen({ navigation }) {
     useEffect(() => {
         setOrientation(navigation, 'landspace')
     }, [navigation]);
-    
+
     const goToConfig = () => {
         dispatch(verifyPassword(password));
     }
@@ -30,7 +30,7 @@ export default function HomeScreen({ navigation }) {
             setModalVisible(false)
             navigation.navigate('Config');
         }
-    })
+    }, [canConfig])
 
     const openModal = () => {
         setModalVisible(true)
@@ -66,9 +66,11 @@ export default function HomeScreen({ navigation }) {
                     <Text style={{ marginBottom: 20}}>Para ingresar a la sesión de configuración primero debe ingresar la contraseña</Text>
                     {
                         error &&
-                            <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>
-                                { getErrorMessage(error.status) }
-                            </Text>
+                            <TouchableOpacity onPress={() => dispatch(cleanError())}>
+                                <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>
+                                    { getErrorMessage(error.status) }
+                                </Text>
+                            </TouchableOpacity>
                     }
                     <Item style={{ marginBottom: 40}} floatingLabel>
                         <Label>Contraseña</Label>
