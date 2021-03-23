@@ -10,20 +10,20 @@ export default function LoadingResourseScreen({ navigation }) {
     const dispatch = useDispatch();
 
     const { user } = useSelector(state => state.users);
-    const { categoriesIsReady }  = useSelector(state => state.categories);
-    const { pictogramsIsReady } = useSelector(state => state.pictograms);
+    const { categoriesIsReady, categories }  = useSelector(state => state.categories);
+    const { pictogramsIsReady, pictograms } = useSelector(state => state.pictograms);
 
     useEffect(() => {
         setOrientation(navigation, 'landspace')
     }, [navigation]);
 
     useEffect(() => {
-        dispatch(getAllCategories(user));
-    }, [])
+        categories.length === 0 && !categoriesIsReady && dispatch(getAllCategories(user));
+    }, [categories, categoriesIsReady])
     
     useEffect(() => {
-        dispatch(getAllPictograms(user))
-    }, [])
+        pictograms.length === 0 && !pictogramsIsReady && dispatch(getAllPictograms(user))
+    }, [pictograms, pictogramsIsReady])
 
     useEffect(() => {
         categoriesIsReady && pictogramsIsReady && navigation.navigate('Home');

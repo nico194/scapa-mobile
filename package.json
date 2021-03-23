@@ -25,6 +25,7 @@
     "expo-media-library": "~10.0.0",
     "expo-permissions": "~10.0.0",
     "expo-screen-orientation": "~2.1.0",
+    "expo-speech": "~8.5.0",
     "expo-sqlite-query-helper": "^1.1.4",
     "expo-status-bar": "~1.0.3",
     "native-base": "^2.15.0",

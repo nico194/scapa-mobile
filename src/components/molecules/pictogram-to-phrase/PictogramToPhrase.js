@@ -2,11 +2,12 @@ import React from 'react'
 import { Image, TouchableOpacity, Dimensions, StyleSheet } from 'react-native';
 
 export default function PictogramToPhrase({ onPress, image }) {
-    const { width } = Dimensions.get('screen');
-    const imageUri = Image.resolveAssetSource(image).uri;
+    const { width, height } = Dimensions.get('screen');
+    const imageButtonToSpeak = require('../../../../assets/speakButtonImage.png');
+    const imageUri = image ? image : Image.resolveAssetSource(imageButtonToSpeak).uri;
     return (
         <TouchableOpacity onPress={onPress} style={styles.pictogram}>
-            <Image source={{ uri: imageUri }} resizeMode='cover' style={{ width: width / 14, height: width / 14 }} />
+            <Image source={{ uri: imageUri }} resizeMode='cover' style={{ width: width / 14, height: height / 9 }} />
         </TouchableOpacity>
     )
 }

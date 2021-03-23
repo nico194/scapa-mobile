@@ -8,8 +8,8 @@ export default function CategoryList({ navigation, setCategory, setShowAddCatego
 
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.users);
-    const { loadingCategories, categories, changedCategories } = useSelector(state => state.categories); 
-
+    const { loadingCategories, categories, changedCategories } = useSelector(state => state.categories);
+    
     useEffect(() => {
         dispatch(getCategories());
     }, [changedCategories])
@@ -21,7 +21,7 @@ export default function CategoryList({ navigation, setCategory, setShowAddCatego
                 loading={loadingCategories}
                 onPressCategory={() => openModadToEdit(category)}
                 onPressArrow={() => navigation.navigate('CustomPictograms', { idCategory : category.id })}
-                onPressDelete={() => dispatch(deleteCategory(category.id, user))}
+                onPressDelete={() => dispatch(deleteCategory(category, user))}
                 description={category.attributes.description}
             />
         )

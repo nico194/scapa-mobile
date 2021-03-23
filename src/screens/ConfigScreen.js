@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler, Alert } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux';
-import { initHome } from '../redux/actions/users';
+import { useDispatch } from 'react-redux';
 import { Container, Content, H1, Button, Switch, H3, H2 } from 'native-base';
 import { setOrientation } from '../configs/orientation';
+import { initHome } from '../redux/actions/users';
 
 
 export default function ConfigScreen({ navigation }) {
@@ -11,36 +10,13 @@ export default function ConfigScreen({ navigation }) {
     const [voice, setVoice] = useState(false);
 
     const dispatch = useDispatch();
-    const { canConfig } = useSelector(state => state.users)
-
-    useEffect(() => {
-        const backAction = () => {
-            Alert.alert('Espera...', 'Estas seguro que quieres volver atras?', [
-                {
-                    text: 'Cancelar',
-                    onPress: () => null,
-                    style: 'cancel'
-                },
-                { text: 'Aceptar', onPress: () => dispatch(initHome()) }
-            ]);
-            return true;
-        };
-
-        const backHandler = BackHandler.addEventListener(
-            'hardwareBackPress',
-            backAction
-        );
-
-        return () => backHandler.remove();
-    }, []);
-
     useEffect(() => {
         setOrientation(navigation, 'portrait')
     }, [navigation]);
 
     useEffect(() => {
-        !canConfig && navigation.navigate('Home');
-    }, [canConfig])
+        dispatch(initHome())
+    }, [dispatch])
 
     const handlerOnChangeToggle = (value) => {
         setVoice(value)

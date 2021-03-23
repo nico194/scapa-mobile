@@ -9,14 +9,13 @@ export default function Phrase() {
     const dispatch = useDispatch()
     const { phrase } = useSelector(state => state.phrases)
 
-    const imageButtonToSpeak = require('../../../../assets/speakButtonImage.png');
 
     const phraseToShow = phrase.map( (pictogram, index) => {
         return (
             <PictogramToPhrase
                 key={index}
                 onPress={() => dispatch(removePictogramToPhrase(index))}
-                image={imageButtonToSpeak}
+                image={pictogram.image}
                 />
         )
     })

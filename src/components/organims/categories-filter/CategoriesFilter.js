@@ -12,7 +12,6 @@ export default function CategoriesFilter() {
     const [ categoryIndex, setCategoryIndex ] = useState(0)
 
     const dispatch = useDispatch();
-    const { user } = useSelector(state => state.users);
     const { loadingCategories, categories } = useSelector(state => state.categories);
 
     useEffect(() => {

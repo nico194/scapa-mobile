@@ -3,10 +3,12 @@ import {
     FETCH_CATEGORIES_ERROR,
     FETCH_CATEGORIES_SUCCESS,
     ADD_CATEGORY_SUCCESS,
+    ADD_GROUP,
     ADD_CATEGORY_ERROR,
     UPDATE_CATEGORY_SUCCESS,
     UPDATE_CATEGORY_ERROR,
     DELETE_CATEGORY_SUCCESS,
+    DELETE_GROUP,
     DELETE_CATEGORY_ERROR,
     CHANGED_STATUS,
     CATEGORIES_ASYNC_STORAGE,
@@ -97,7 +99,9 @@ export const addCategory = (categoryToAdd, { accessToken, client, uid }) => {
     }
 }
 
-export const deleteCategory = (id, { accessToken, client, uid }) => {
+export const groupAdded = () => dispatch => dispatch({type: ADD_GROUP});
+
+export const deleteCategory = (categoryToDelete, { accessToken, client, uid }) => {
     return async dispatch => {
         dispatch({ type: FETCH_CATEGORIES_PENDING });
         const headers = { headers: {
@@ -106,18 +110,20 @@ export const deleteCategory = (id, { accessToken, client, uid }) => {
             uid
         }}
         try {
-            const response = await axiosConfig.delete(`/v1/custom_categories/${id}`, headers);
+            const response = await axiosConfig.delete(`/v1/custom_categories/${categoryToDelete.id}`, headers);
             const category = { ...response.data.data, isCustom: true };
             const categories = await getCategoriesFromAsyncStorage();
             const categoriesFilter = categories.filter(cat => cat.id !== category.id);
             await setCategoriesInAsynStorage(categoriesFilter);
-            return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: { categories: categoriesFilter }});
+            return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: { categories: categoriesFilter, category }});
         } catch (err) {
             console.log(err);
             return dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err}});
         }
     }
 }
+
+export const groupDeleted = () => dispatch => dispatch({type: DELETE_GROUP});
 
 export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) => {
     return async dispatch => {
@@ -135,10 +141,11 @@ export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) =
         try {
             const response = await axiosConfig.put(`/v1/custom_categories/${categoryToUpdate.id}`, JSON.stringify(categoryRequest), headers);
             const category = { ...response.data.data, isCustom: true };
-            const categories = await getCategoriesFromAsyncStorage();
-            categories.forEach( cat => cat.id === category.id ? { ...cat, attributes:  { description : category.attributes.description } } : cat ),
+            console.log('category: ', category)
+            const categoriesSaved = await getCategoriesFromAsyncStorage();
+            const categories = categoriesSaved.map( cat => cat.id === category.id ? { ...cat, attributes:  { description : category.attributes.description } } : cat );
             await setCategoriesInAsynStorage(categories);
-            return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { categories }})
+            return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { categories, category }})
         } catch (err) {
             console.log(err);
             return dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err}})

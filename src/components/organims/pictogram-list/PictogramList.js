@@ -17,8 +17,8 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
             id: pictogram.id,
             description: pictogram.attributes.description,
             image: pictogram.image,
-            idCategory: idCategory,
-            beforeDescription: pictogram.attributes.description
+            oldImage: pictogram.image,
+            idCategory,
         }
         setPictogram(pic);
         setOperation('Actualizar');

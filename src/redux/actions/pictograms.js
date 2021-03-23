@@ -14,9 +14,8 @@ import {
     GET_PICTOGRAMS
     } from '../constants/pictograms';
 import axiosConfig from '../../configs/axios';
-import { fileToBase64, donwloadAndSaveFile , updateFile, deleteFile } from '../../configs/manageFiles';
+import { fileToBase64, donwloadAndSaveFile, deleteFile } from '../../configs/manageFiles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import shorthash from 'shorthash';
 
 export const getAllPictograms = ({ accessToken, client, uid }) => {
     return async dispatch => {
@@ -26,13 +25,15 @@ export const getAllPictograms = ({ accessToken, client, uid }) => {
             client,
             uid
         }}
+        let pictogramsGroupedByCategories = {};
         try {
-            const pictogramsByDefault = await getPictogramsFromAPI('pictograms', headers);
-            const pictogramsByCustom = await getPictogramsFromAPI('custom_pictograms', headers); 
-            const filterBy =  Object.keys(pictogramsByCustom).length > 0 ? '1-custom' : '1-default';
-            Object.assign(pictogramsByCustom, pictogramsByDefault);
-            await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictogramsByCustom))
-            return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms: pictogramsByCustom[filterBy].pictograms }});
+            const defaultId = await getPictogramsFromAPI('pictograms', headers, pictogramsGroupedByCategories);
+            console.log('default id: ', defaultId);
+            const customId = await getPictogramsFromAPI('custom_pictograms', headers, pictogramsGroupedByCategories); 
+            console.log('custom id: ', customId);
+            const filterBy =  customId >= 0 ? `${customId}-custom` : `${defaultId}-default`;
+            await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictogramsGroupedByCategories))
+            return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms: pictogramsGroupedByCategories[filterBy].pictograms }});
         } catch (err) {
             console.log(err)
             return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {err}});
@@ -40,35 +41,35 @@ export const getAllPictograms = ({ accessToken, client, uid }) => {
     }
 }
 
-const getPictogramsFromAPI = async (source, headers) => {
+const getPictogramsFromAPI = async (source, headers, pictogramsGroupedByCategories) => {
     let band = true;
     let page = 1;
-    let pictogramsGroupedByCategories = {};
+    let firstId = -1;
     try {
         while (band) {
             const response = await axiosConfig.get(`/v1/${source}?per_page=40&page=${page}`, headers);
             const { data, meta } = response.data;
             if(data.length > 0) {
+                firstId = data[0].relationships.classifiable.data.id;
                 const pictograms =  await savePictogramsImages(data);
                 pictogramsGroupedByCategories = groupPictogramsByCategory(pictogramsGroupedByCategories, pictograms);
                 band = !meta.is_last_page;
                 page += 1;
             } else {
-                pictogramsGroupedByCategories = {}
                 band = false;
             }
         } 
     } catch (error) {
         console.log(error)
     }
-    return pictogramsGroupedByCategories;
+    return firstId;
 }
 
 const savePictogramsImages = async (pictograms) => {
     let pics = [];
     try {
         pics = await Promise.all(pictograms.map(async (pictogram) => {
-            const imageName = shorthash.unique(`${pictogram.attributes.description}-${ pictogram.attributes.is_custom ? 'custom' : 'default' }`) + '.jpg';
+            const imageName = `${pictogram.attributes.description}-${ pictogram.attributes.is_custom ? 'custom' : 'default' }.png`;
             const uri =  pictogram.attributes.image_url ? await donwloadAndSaveFile(imageName, pictogram.attributes.image_url) : null;
             console.log('uri:', uri)
             pictogram.image =  uri ;
@@ -87,7 +88,7 @@ const groupPictogramsByCategory = (pictogramsGroupedByCategories, pictograms) =>
             pictogramsGroupedByCategories[group] = {
                 pictograms: []
             }
-        }                    
+        } 
         pictogramsGroupedByCategories[group].pictograms.push(pictogram);
     })
 
@@ -100,7 +101,6 @@ export const filterPictogramsByCategory = (idCategory, isCustom) => {
         try {
             const category = `${idCategory}-${ isCustom ? 'custom' : 'default'}`;
             const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
-            console.log('picts saved:', pictograms)
             return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms }})
         } catch (error) {
             console.log(error);
@@ -113,21 +113,30 @@ const getPictogramsByCategoryFromAsyncStorage = async (category) => {
     try {
         const pics = await AsyncStorage.getItem(PICTOGRAMS_ASYNC_STORAGE);
         const pictogramsByCategory = JSON.parse(pics);
-        const pictograms = pictogramsByCategory[category] !== undefined ? pictogramsByCategory[category].pictograms : [];
+        let pictograms = [];
+        if(pictogramsByCategory[category] !== undefined) {
+            pictograms = pictogramsByCategory[category].pictograms
+        } else {
+            pictogramsGroupedByCategories[category] = {
+                pictograms: []
+            };
+            await setPictogramsFromAsyncStorage(pictogramsGroupedByCategories)
+        }
         return pictograms;        
     } catch (error) {
-        console.log(error);
+        console.log('get pictograms in category: ', error);
     }
 }
 
 const setPictogramsByCategoryIntoAsyncStorage  = async (pictograms, category) => {
     try {
-        const pics = await getPictogramsFromAsyncStorage();
-        const pictogramsGroupedByCategory = JSON.parse(pics);
+
+        console.log(pictograms, category)
+        const pictogramsGroupedByCategory = await getPictogramsFromAsyncStorage();
         pictogramsGroupedByCategory[category].pictograms = pictograms;
         await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictogramsGroupedByCategory));
     } catch (error) {
-        console.log(error);
+        console.log('saved async storage', error);
     }
 }
 
@@ -140,14 +149,23 @@ const getPictogramsFromAsyncStorage = async () => {
     }
 }
 
-export const addKeyIntoPictograms = async (category) => {
+const setPictogramsFromAsyncStorage = async (pictograms) => {
+    try {
+        await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictograms));
+        return;       
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const addKeyIntoPictograms = (category) => {
     return async dispatch => {
         try {
             const cat = `${category.id}-custom`;
             const pictogramsByCategory = await getPictogramsFromAsyncStorage();
-            Object.defineProperty(pictogramsByCategory, cat, { value: { pictograms: [] }, enumerable: true, configurable: true, writable: true})
-            const pictograms = pictogramsByCategory[cat].pictograms;
-            console.log('pics:', pictograms);
+            const newPictogramsByCategory = Object.defineProperty(pictogramsByCategory, cat, { value: { pictograms: [] }, enumerable: true, configurable: true, writable: true})
+            await setPictogramsFromAsyncStorage(newPictogramsByCategory)
+            const pictograms = newPictogramsByCategory[cat].pictograms;
             return dispatch({ type: GET_PICTOGRAMS, payload: { pictograms }})
         } catch (err) {
             console.log(err)
@@ -156,17 +174,20 @@ export const addKeyIntoPictograms = async (category) => {
     }
 }
 
-// export const updateKeyIntoPictogram = async (category) => {
-//     return async dispatch => {
-
-//     }
-// }
-
-// export const deleteKeyIntoPictogram = async (category) => {
-//     return async dispatch => {
-
-//     }
-// }
+export const deleteKeyIntoPictograms =  (category) => {
+    return async dispatch => {
+        try {
+            const cat = `${category.id}-custom`;
+            const pictogramsByCategory = await getPictogramsFromAsyncStorage();
+            delete pictogramsByCategory[cat];
+            await setPictogramsFromAsyncStorage(pictogramsByCategory);
+            return dispatch({ type: GET_PICTOGRAMS, payload: { pictograms: [] }})
+        } catch (err) {
+            console.log(err)
+            return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {err}});
+        }
+    }
+}
 
 export const addPictogram = (pictogramToAdd , { accessToken, client, uid }) => {
     return async dispatch => {
@@ -178,7 +199,7 @@ export const addPictogram = (pictogramToAdd , { accessToken, client, uid }) => {
         }};
         try {
             const imageInBase64 = await fileToBase64(pictogramToAdd.image)
-            const filename = `${shorthash.unique(pictogramToAdd.description)}.png`;
+            const filename = `${pictogramToAdd.description}-custom.png`;
             const pictogram = {
                 custom_pictogram: {
                     description: pictogramToAdd.description,
@@ -193,12 +214,12 @@ export const addPictogram = (pictogramToAdd , { accessToken, client, uid }) => {
             const uri = await donwloadAndSaveFile(filename, response.data.data.attributes.image_url);
             const pictogramResponsed = { ...response.data.data, image: uri };
             const category = `${pictogramToAdd.idCategory}-custom`;
-            const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
-            pictograms.concat(pictogramResponsed);
+            const pictogramsByCategory = await getPictogramsByCategoryFromAsyncStorage(category);
+            const pictograms = [ ...pictogramsByCategory, pictogramResponsed ]
             await setPictogramsByCategoryIntoAsyncStorage(pictograms, category)
             return dispatch({ type: ADD_PICTOGRAM_SUCCESS, payload: { pictograms }});
-        } catch (error) {
-            console.log(error);
+        } catch (err) {
+            console.log(err);
             return dispatch({ type: ADD_PICTOGRAM_ERROR, payload: {err}});
         }
     }
@@ -212,11 +233,10 @@ export const deletePictogram = (pictogramToDelete, { accessToken, client, uid })
             client,
             uid
         }};
-        console.log(headers)
         try {
             const response = await axiosConfig.delete(`/v1/custom_pictograms/${pictogramToDelete.id}`, headers )
             await deleteFile(pictogramToDelete.image);
-            const category = `${response.data.data.id}-custom`
+            const category = `${response.data.data.relationships.classifiable.data.id}-custom`
             const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
             const pictogramsFiltered = pictograms.filter(pic => pic.id !== response.data.data.id);
             await setPictogramsByCategoryIntoAsyncStorage(pictogramsFiltered, category);
@@ -238,7 +258,8 @@ export const updatePictogram = (pictogramToUpdate, { accessToken, client, uid })
         }};
         try {
             const imageInBase64 = await fileToBase64(pictogramToUpdate.image);
-            const filename = `${shorthash.unique(pictogramToUpdate.description)}.png`;
+            const filename = `${pictogramToUpdate.description}-custom.png`;
+            const oldImage = pictogramToUpdate.oldImage;
             const pictogram = {
                 custom_pictogram: {
                     description: pictogramToUpdate.description,
@@ -250,11 +271,28 @@ export const updatePictogram = (pictogramToUpdate, { accessToken, client, uid })
                 }
             };
             const response = await axiosConfig.put(`/v1/custom_pictograms/${pictogramToUpdate.id}`, JSON.stringify(pictogram), headers);
-            const uri = await updateFile(pictogramToUpdate.image, filename, response.data.data.attributes.image_url);
+            await deleteFile(oldImage);
+            const uri = await donwloadAndSaveFile(filename, response.data.data.attributes.image_url)
             const pictogramResponsed = { ...response.data.data, image: uri };
-            return dispatch({ type: UPDATE_PICTOGRAM_SUCCESS, payload: { pictogram: pictogramResponsed }});
-        } catch (error) {
-            console.log(error);
+            const category = `${pictogramResponsed.relationships.classifiable.data.id}-custom`
+            const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
+            const pictogramsUpdated = pictograms.map(pic => 
+                pic.id === pictogramResponsed.id ?
+                    {
+                        ...pic,
+                        attributes: {
+                            description: pictogramResponsed.attributes.description,
+                            image_url: pictogramResponsed.attributes.image_url
+                        },
+                        image: pictogramResponsed.image
+                    }
+                    :
+                    pic
+            )
+            await setPictogramsByCategoryIntoAsyncStorage(pictogramsUpdated, category);
+            return dispatch({ type: UPDATE_PICTOGRAM_SUCCESS, payload: { pictograms: pictogramsUpdated }});
+        } catch (err) {
+            console.log(err);
             return dispatch({ type: UPDATE_PICTOGRAM_ERROR, payload: {err}});
         }
     }

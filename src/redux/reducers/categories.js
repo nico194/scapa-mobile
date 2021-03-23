@@ -3,10 +3,12 @@ import {
     FETCH_CATEGORIES_ERROR,
     FETCH_CATEGORIES_SUCCESS,
     ADD_CATEGORY_SUCCESS,
+    ADD_GROUP,
     ADD_CATEGORY_ERROR,
     UPDATE_CATEGORY_SUCCESS,
     UPDATE_CATEGORY_ERROR,
     DELETE_CATEGORY_SUCCESS,
+    DELETE_GROUP,
     DELETE_CATEGORY_ERROR,
     CHANGED_STATUS,
     RESET_STATE
@@ -18,6 +20,8 @@ const initialState = {
     categorySaved : {},
     changedCategories: false,
     categoriesIsReady: false,
+    categoryAdded: false,
+    categoryDeleted: false,
     err: null
 }
 
@@ -48,8 +52,31 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 changedCategories: false,
                 categoriesIsReady: true
             }
-        case ADD_CATEGORY_SUCCESS: 
-        case UPDATE_CATEGORY_SUCCESS:
+        case ADD_CATEGORY_SUCCESS: {
+            return {
+                ...state,
+                loadingCategories: false,
+                categories: payload.categories,
+                categorySaved: payload.category ? payload.category : {},
+                changedCategories: true,
+                categoryAdded: true
+            } 
+        }
+        case ADD_GROUP: {
+            return {
+                ...state,
+                categorySaved: {},
+                categoryAdded: false
+            } 
+        }
+        case UPDATE_CATEGORY_SUCCESS: {
+            return {
+                ...state,
+                loadingCategories: false,
+                categories: payload.categories,
+                changedCategories: true,
+            } 
+        }
         case DELETE_CATEGORY_SUCCESS:
         {
             return {
@@ -57,7 +84,15 @@ function categoriesReducer(state = initialState, {type, payload}) {
                 loadingCategories: false,
                 categories: payload.categories,
                 categorySaved: payload.category ? payload.category : {},
-                changedCategories: true
+                changedCategories: true,
+                categoryDeleted: true
+            } 
+        }
+        case DELETE_GROUP: {
+            return {
+                ...state,
+                categorySaved: {},
+                categoryDeleted: false
             } 
         }
         case CHANGED_STATUS: {

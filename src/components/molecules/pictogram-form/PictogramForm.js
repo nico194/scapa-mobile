@@ -4,6 +4,7 @@ import { Image, View, Dimensions } from 'react-native';
 import { Button, Form, H1, Input, Item, Label, Text, Spinner } from 'native-base';
 import DropDownPicker from 'react-native-dropdown-picker'
 import * as ImagePicker from 'expo-image-picker';
+import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera'
 import { Entypo } from '@expo/vector-icons';
 
@@ -12,7 +13,7 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
     const camRef = useRef(null);
     const [openCamera, setOpenCamera] = useState(false);
     const [type, setType] = useState(Camera.Constants.Type.back);
-    const [hasPermission, setHasPermission] = useState(false);
+    const [permission, askForPermission] = Permissions.usePermissions([Permissions.CAMERA, Permissions.MEDIA_LIBRARY], { ask: true });
 
     const { categories } = useSelector(state => state.categories); 
     const customCategories = categories.filter( cat => cat.isCustom).map(category => ({ label: category.attributes.description, value: category.id })); 
@@ -33,7 +34,7 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
     useEffect(() => {
         (async () => {
             const { status } = await Camera.requestPermissionsAsync();
-            setHasPermission(status === 'granted')
+            status !== 'granted' && askForPermission()
         })();
     }, [])
 
@@ -89,12 +90,9 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
                 </Button>
             </Camera>
             <View style={[openCamera ? { display: 'none' } : { flex: 1 }]}>
-                {!hasPermission &&
+                {!permission || permission.status !== 'granted' &&
                     (
-                        <Button onPress={() => {
-                            setHasPermission(true);
-                            setOpenCamera(false)
-                        }} danger>
+                        <Button onPress={askForPermission} danger>
                             <Text>Primero otorgue los permisos correspondientes </Text>
                         </Button>
                     )

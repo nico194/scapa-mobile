@@ -9,21 +9,22 @@ export default function Pictogram({ onPress, description, image, isCRUD, onUpdat
     const imageDefault = Image.resolveAssetSource(imageButtonToSpeak).uri;
     const imageUri = image ? image : imageDefault ;
     const pictogramWidth = Dimensions.get('screen').width;
-    const pictogramHeiht = Dimensions.get('screen').height;
+    const pictogramHeight = Dimensions.get('screen').height;
     
     const dimensionPic = () => {
         return {
             width: isCRUD ? pictogramWidth / 3.5 : pictogramWidth / 5, 
-            height: isCRUD ? pictogramHeiht / 5 : pictogramHeiht / 3.2, 
+            height: isCRUD ? pictogramHeight / 5 : pictogramHeight / 3.2, 
             alignItems: 'center', 
-            justifyContent: 'center'
+            justifyContent: 'center',
+            overflow: 'hidden'
         }
     }
 
     const dimensionImage = () => {
         return {
             width: isCRUD ? pictogramWidth / 5 : pictogramWidth / 8, 
-            height: isCRUD ? pictogramHeiht / 8 : pictogramHeiht / 5,
+            height: isCRUD ? pictogramHeight / 8 : pictogramHeight / 5,
         }
     }
 
@@ -44,7 +45,7 @@ export default function Pictogram({ onPress, description, image, isCRUD, onUpdat
             <TouchableOpacity onPress={onPress} style={{ elevation: 4 }}>
                 <Card style={dimensionPic()}>
                     <CardItem style={{ flexDirection: 'column' }}>
-                        <Image source={{ uri: imageUri }} resizeMode='contain' style={dimensionImage()} />
+                        <Image source={{ uri: imageUri }} resizeMode='cover' style={dimensionImage()} />
                         <Text>{description}</Text>
                     </CardItem>
                 </Card>

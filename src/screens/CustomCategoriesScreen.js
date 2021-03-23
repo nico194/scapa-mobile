@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
-import { addCategory, updateCategory, changedStatusCategory } from '../redux/actions/categories';
-import { addPictogram, updatePictogram, changedStatusPictogram } from '../redux/actions/pictograms';
+import { addCategory, updateCategory, changedStatusCategory, groupAdded, groupDeleted } from '../redux/actions/categories';
+import { addPictogram, updatePictogram, changedStatusPictogram, addKeyIntoPictograms, deleteKeyIntoPictograms } from '../redux/actions/pictograms';
+import { getUserFromAsyncStorage } from '../redux/actions/users';
 import { View } from 'react-native'; 
 import { Container, H1, Text, Button } from 'native-base';
 import CustomModal from '../components/molecules/modal/CustomModal';
@@ -31,8 +32,12 @@ export default function CustomCategoriesScreen({ navigation }) {
 
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.users);
-    const { loadingCategories, changedCategories } = useSelector(state => state.categories);
+    const { loadingCategories, changedCategories, categorySaved, categoryAdded, categoryDeleted } = useSelector(state => state.categories);
     const { loadingPictograms, changedPictograms } = useSelector(state => state.pictograms);
+
+    useEffect(() => {
+        dispatch(getUserFromAsyncStorage())
+    }, [])
 
     useEffect(() => {
         if(changedCategories) {
@@ -41,6 +46,20 @@ export default function CustomCategoriesScreen({ navigation }) {
             dispatch(changedStatusCategory())
         }  
     }, [changedCategories])
+    
+    useEffect(() => {
+        if(categoryAdded) {
+            dispatch(addKeyIntoPictograms(categorySaved));
+            dispatch(groupAdded());
+        }
+    }, [categoryAdded])
+
+    useEffect(() => {
+        if(categoryDeleted) {
+            dispatch(deleteKeyIntoPictograms(categorySaved));
+            dispatch(groupDeleted());
+        }
+    }, [categoryDeleted])
 
     useEffect(() => {
         if(changedPictograms) {

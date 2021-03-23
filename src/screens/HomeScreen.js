@@ -6,8 +6,11 @@ import CustomModal from '../components/molecules/modal/CustomModal';
 import Menu from '../components/organims/menu/Menu';
 import { MaterialIcons } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation'
-import { cleanError, logOutUser, verifyPassword } from '../redux/actions/users';
+import { cleanError, logOutUser, verifyPassword, initHome } from '../redux/actions/users';
+
 import { getErrorMessage } from '../configs/manageError';
+import { emptyCategories } from '../redux/actions/categories';
+import { emptyPictograms } from '../redux/actions/pictograms';
 
 export default function HomeScreen({ navigation }) {
 
@@ -16,7 +19,7 @@ export default function HomeScreen({ navigation }) {
 
     const dispatch = useDispatch();
     const { user, loadingUser, canConfig, error } = useSelector(state => state.users);
-
+    
     useEffect(() => {
         setOrientation(navigation, 'landspace')
     }, [navigation]);
@@ -44,6 +47,12 @@ export default function HomeScreen({ navigation }) {
         Object.keys(user).length === 0 && navigation.navigate('Login');
     })
 
+    const logout = () => {
+        dispatch(emptyPictograms());
+        dispatch(emptyCategories());
+        dispatch(logOutUser())
+    }
+
     return (
         <Container>
             <View style={{ flex: 1, flexDirection: 'row', position: 'absolute', top: 0, right: 15 }}>
@@ -51,7 +60,7 @@ export default function HomeScreen({ navigation }) {
                     <MaterialIcons name='settings' size={27} style={{ color: '#ffffff', marginLeft: 5}} />
                     <Text style={{ fontSize: 18 }}>Ir a configuraciones</Text>
                 </Button>
-                <Button warning onPress={() => dispatch(logOutUser()) } style={{ marginLeft: 10 }} >                
+                <Button warning onPress={logout} style={{ marginLeft: 10 }} >                
                     <Text style={{ fontSize: 18 }}>Salir</Text>
                     { loadingUser ?
                          <Spinner color='white' />

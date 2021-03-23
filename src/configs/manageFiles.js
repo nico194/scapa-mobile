@@ -23,10 +23,12 @@ export const donwloadAndSaveFile = async (filename, fileRoute) => {
 
 export const deleteFile = async (uri) => {
     try {
-        await FileSystem.deleteAsync(uri);
-        return;
-    } catch (error) {
-        console.log('err', error);
-    }
+        const dirInfo = await FileSystem.getInfoAsync(uri);
+        if (dirInfo.exists) {
+            await FileSystem.deleteAsync(uri);
+        }
+      } catch (error) {
+        console.error(`ERROR: Expo Check Directory: ${downloadFilePath}`, error);
+      }
 }
 
