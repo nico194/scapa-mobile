@@ -9,6 +9,8 @@ import ConfigScreen from './screens/ConfigScreen';
 import CustomCategoriesScreen from './screens/CustomCategoriesScreen';
 import CustomPictogramsScreen from './screens/CustomPictogramsScreen';
 import LoadingResourseScreen from './screens/LoadingResourseScreen';
+import MemoriesScreen from './screens/MemoriesScreen';
+import RoutinesScreen from './screens/RoutinesScreen';
 
 const Stack = createStackNavigator();
 
@@ -24,6 +26,8 @@ export default function Navigator() {
 				<Stack.Screen name='LoadingResourse' component={LoadingResourseScreen} />
 				<Stack.Screen name='Register' component={RegisterScreen} />
 				<Stack.Screen name='Speak' component={SpeakScreen} />
+				<Stack.Screen name='Memories' component={MemoriesScreen} />
+				<Stack.Screen name='Routines' component={RoutinesScreen} />
 			</Stack.Navigator>
 		</NavigationContainer>
   	);

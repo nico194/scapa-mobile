@@ -6,11 +6,11 @@ import CustomModal from '../components/molecules/modal/CustomModal';
 import Menu from '../components/organims/menu/Menu';
 import { MaterialIcons } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation'
-import { cleanError, logOutUser, verifyPassword, initHome } from '../redux/actions/users';
-
+import { cleanError, logOutUser, verifyPassword } from '../redux/actions/users';
 import { getErrorMessage } from '../configs/manageError';
-import { emptyCategories } from '../redux/actions/categories';
+import { emptyPhrases } from '../redux/actions/pharses';
 import { emptyPictograms } from '../redux/actions/pictograms';
+import { emptyCategories } from '../redux/actions/categories';
 
 export default function HomeScreen({ navigation }) {
 
@@ -48,6 +48,7 @@ export default function HomeScreen({ navigation }) {
     })
 
     const logout = () => {
+        dispatch(emptyPhrases());
         dispatch(emptyPictograms());
         dispatch(emptyCategories());
         dispatch(logOutUser())

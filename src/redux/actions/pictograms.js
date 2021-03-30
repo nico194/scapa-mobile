@@ -71,7 +71,6 @@ const savePictogramsImages = async (pictograms) => {
         pics = await Promise.all(pictograms.map(async (pictogram) => {
             const imageName = `${pictogram.attributes.description}-${ pictogram.attributes.is_custom ? 'custom' : 'default' }.png`;
             const uri =  pictogram.attributes.image_url ? await donwloadAndSaveFile(imageName, pictogram.attributes.image_url) : null;
-            console.log('uri:', uri)
             pictogram.image =  uri ;
             return pictogram;
         }));
@@ -235,6 +234,7 @@ export const deletePictogram = (pictogramToDelete, { accessToken, client, uid })
         }};
         try {
             const response = await axiosConfig.delete(`/v1/custom_pictograms/${pictogramToDelete.id}`, headers )
+            console.log('pictogram deleted', response)
             await deleteFile(pictogramToDelete.image);
             const category = `${response.data.data.relationships.classifiable.data.id}-custom`
             const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);

@@ -13,6 +13,11 @@ export const fileToBase64 = async (uri) => {
     }
 }
 
+export const checkIfFileExist = async (filename) => {
+    const dirInfo = await FileSystem.getInfoAsync(FileSystem.documentDirectory + filename);
+    return { exists: dirInfo.exists, uri: dirInfo.exists ? FileSystem.documentDirectory + filename : '' };
+}
+
 export const donwloadAndSaveFile = async (filename, fileRoute) => {
     const fileUri = FileSystem.documentDirectory + filename;
     const url = baseURL + fileRoute;

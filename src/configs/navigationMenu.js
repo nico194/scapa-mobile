@@ -10,9 +10,9 @@ const imageRoutines = Image.resolveAssetSource(imageButtonToRoutines).uri;
 
 export const menuNav = [
     {
-        label: 'Rutinas',
-        goto: 'Routines',
-        image: imageRoutines,
+        label: 'Recuerdos',
+        goto: 'Memories',
+        image: imageMemories,
     },
     {
         label: 'Empecemos a Hablar',
@@ -20,8 +20,8 @@ export const menuNav = [
         image: imageSpeak,
     },
     {
-        label: 'Memorias',
-        goto: 'Memories',
-        image: imageMemories,
-    }
+        label: 'Rutinas',
+        goto: 'Routines',
+        image: imageRoutines,
+    }       
 ]

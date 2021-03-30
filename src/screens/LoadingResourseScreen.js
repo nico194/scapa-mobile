@@ -4,6 +4,7 @@ import { Container, Content, Spinner, H2 } from 'native-base';
 import { setOrientation } from '../configs/orientation';
 import { getAllCategories } from '../redux/actions/categories';
 import { getAllPictograms } from '../redux/actions/pictograms';
+import { getAllPhrases } from '../redux/actions/pharses'
 
 export default function LoadingResourseScreen({ navigation }) {
 
@@ -12,6 +13,9 @@ export default function LoadingResourseScreen({ navigation }) {
     const { user } = useSelector(state => state.users);
     const { categoriesIsReady, categories }  = useSelector(state => state.categories);
     const { pictogramsIsReady, pictograms } = useSelector(state => state.pictograms);
+    const { phrasesIsReady, phrases} = useSelector(state => state.phrases)
+
+    console.log('phs is ready:', phrasesIsReady, 'get phrases: ', phrases.length === 0 && !phrasesIsReady && pictogramsIsReady, 'pic is ready: ', pictogramsIsReady, 'cat is ready: ',  categoriesIsReady )
 
     useEffect(() => {
         setOrientation(navigation, 'landspace')
@@ -26,8 +30,12 @@ export default function LoadingResourseScreen({ navigation }) {
     }, [pictograms, pictogramsIsReady])
 
     useEffect(() => {
-        categoriesIsReady && pictogramsIsReady && navigation.navigate('Home');
-    }, [categoriesIsReady, pictogramsIsReady])
+        phrases.length === 0 && !phrasesIsReady && pictogramsIsReady && dispatch(getAllPhrases(user))
+    }, [phrases, phrasesIsReady, pictogramsIsReady])
+
+    useEffect(() => {
+        categoriesIsReady && pictogramsIsReady && phrasesIsReady && navigation.navigate('Home');
+    }, [categoriesIsReady, pictogramsIsReady, phrasesIsReady])
 
     return (
         <Container>

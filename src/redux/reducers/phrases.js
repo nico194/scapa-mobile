@@ -1,25 +1,25 @@
 import {
-    FETCH_ROUTINES_PENDING,
-    FETCH_ROUTINES_SUCCESS,
-    FETCH_ROUTINES_ERROR,    
-    ADD_ROUTINE_SUCCESS,
-    ADD_ROUTINE_ERROR,
-    UPDATE_ROUTINE_SUCCESS,
-    UPDATE_ROUTINE_ERROR,
-    DELETE_ROUTINE_SUCCESS,
-    DELETE_ROUTINE_ERROR,
+    FETCH_PHRASES_PENDING,
+    FETCH_PHRASES_ERROR,
+    FETCH_PHRASES_SUCCESS,
+    ADD_PHRASE_SUCCESS,
+    ADD_PHRASE_ERROR,
+    UPDATE_PHRASE_SUCCESS,
+    UPDATE_PHRASE_ERROR,
+    DELETE_PHRASE_SUCCESS,
+    DELETE_PHRASE_ERROR,
     ADD_PICTOGRAM_TO_PHRASE,
-    REMOVE_PICTOGRAM_TO_PHRASE
+    REMOVE_PICTOGRAM_TO_PHRASE,
+    RESET_STATE
 } from '../constants/phrases';
 
 const initialState = {
-    loadingRoutines: false,
+    loadingPhrases: false,
     err: null,
-    routines: [],
-    memories: [],
+    phrases: [],
+    phrasesIsReady: false,
     phrase: [],
-    changed: false,
-    lastId: 0
+    changedPhrase: false
 }
 
 const phrasesReducer = (state = initialState, { type, payload }) => {
@@ -34,39 +34,41 @@ const phrasesReducer = (state = initialState, { type, payload }) => {
                 ...state,
                 phrase: state.phrase.filter( (pic, index) => index !== payload.index )
             };
-        case FETCH_ROUTINES_PENDING:
+        case FETCH_PHRASES_PENDING:
             return {
                 ...state,
-                loadingRoutines: true
+                loadingPhrases: true
             }
-        case FETCH_ROUTINES_ERROR:
-        case ADD_ROUTINE_ERROR:
-        case UPDATE_ROUTINE_ERROR:
-        case DELETE_ROUTINE_ERROR:
+        case FETCH_PHRASES_ERROR:
+        case ADD_PHRASE_ERROR:
+        case UPDATE_PHRASE_ERROR:
+        case DELETE_PHRASE_ERROR:
             return {
                 ...state,
-                loadingRoutines: false,
+                loadingPhrases: false,
                 error: payload.err
             }
-        case FETCH_ROUTINES_SUCCESS:
+        case FETCH_PHRASES_SUCCESS:
             return {
                 ...state,
-                loadingRoutines: false,
-                changed: false
+                loadingPhrases: false,
+                phrases: payload.phrases,
+                changedPhrase: false,
+                phrasesIsReady: true
             }
-        case ADD_ROUTINE_SUCCESS:
+        case ADD_PHRASE_SUCCESS:
             return {
                 ...state,
-                loadingRoutines: false,
-                routines: state.routines.concat(payload.routine),
-                changed: true,
-                lastId: state.lastId++
+                loadingPhrases: false,
+                phrases: payload.phrases,
+                changedPhrase: true,
+                phrase: []
             }
-        case UPDATE_ROUTINE_SUCCESS:
+        case UPDATE_PHRASE_SUCCESS:
             return {
                 ...state,
-                loadingRoutines: false,
-                routines: state.routines.map( routine => 
+                loadingPhrases: false,
+                phrases: state.phrases.map( routine => 
                     routine.id === payload.routine.id ?
                         {
                             ...routine,
@@ -76,13 +78,17 @@ const phrasesReducer = (state = initialState, { type, payload }) => {
                         :
                         routine
                 ),
-                changed: true
+                changedPhrase: true
             }
-        case DELETE_ROUTINE_SUCCESS:
+        case DELETE_PHRASE_SUCCESS:
             return {
                 ...state,
-                routines: state.routines.filter( routine => routine.id !== payload.routine.id)
+                loadingPhrases: false,
+                phrases: payload.phrases,
+                changedPhrase: true
             }
+        case RESET_STATE:
+            return state = initialState
         default:
             return state;
     }

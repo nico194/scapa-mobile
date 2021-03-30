@@ -4,7 +4,7 @@ import { StyleSheet, ScrollView, View } from 'react-native';
 import { H1, Spinner } from 'native-base';
 import Pictogram from '../../molecules/pictogram/Pictogram';
 import { deletePictogram } from '../../../redux/actions/pictograms'
-import { addPictogramToPhrase } from '../../../redux/actions/phases';
+import { addPictogramToPhrase } from '../../../redux/actions/pharses';
 
 export default function PictogramList({ isCRUD = false, idCategory, setPictogram, setOperation, setShowAddPictogram }) {
     

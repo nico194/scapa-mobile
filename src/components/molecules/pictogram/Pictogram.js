@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Image, TouchableOpacity, Dimensions, View, StyleSheet } from 'react-native';
+import React from 'react';
+import { Image, TouchableOpacity, Dimensions, View } from 'react-native';
 import { Badge, Button, Card, CardItem, Text } from 'native-base';
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons';
 

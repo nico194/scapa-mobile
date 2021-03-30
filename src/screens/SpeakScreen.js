@@ -1,50 +1,84 @@
-import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Container, Button } from 'native-base';
+import { useDispatch, useSelector } from 'react-redux';
+import { Container, Button, Form, H1, Input, Item, Label, Text, Spinner } from 'native-base';
+import CustomModal from '../components/molecules/modal/CustomModal';
 import Phrase from '../components/organims/phrase/Phrase';
 import PictogramList from '../components/organims/pictogram-list/PictogramList';
 import CategoriesFilter from '../components/organims/categories-filter/CategoriesFilter';
-import { Entypo, AntDesign } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation';
-import * as Speech from 'expo-speech'
+import { getUserFromAsyncStorage } from '../redux/actions/users';
+import { addPhrase } from '../redux/actions/pharses';
 
 export default function SpeakScreen({ navigation }) {
 
-    const { phrase } = useSelector(state => state.phrases)
+    const [openModal, setOpenModal] = useState(false);
+    const [description, setDescription] = useState('');
 
+    const dispatch = useDispatch();
+    const { user } = useSelector(state => state.users)
+    const { loadingPhrases, phrase, changedPhrase } = useSelector(state => state.phrases)
+    
     useEffect(() => {
         setOrientation(navigation, 'landspace');
     }, [navigation])
 
-    const reproducePhrase = () => {
-        let phraseToReproduce = '';
-        phrase.forEach(pictogram => {
-            phraseToReproduce += `${pictogram.attributes.description} `;
-        });
-        Speech.speak(phraseToReproduce)
+    useEffect(() => {
+        dispatch(getUserFromAsyncStorage())
+    }, [])
+
+    const hideModal = () => {
+        setDescription('');
+        setOpenModal(false);
     }
 
+    const savePhrase = () => {
+        const phraseToAdd= {
+            pictograms: phrase,
+            description
+        }
+        dispatch(addPhrase(phraseToAdd, user));   
+    }
+
+    useEffect(() => {
+        changedPhrase && setOpenModal(false)
+    }, [changedPhrase])
+
     return (
-        <Container>
-            <View style={styles.containerPhrase}>
-                <Phrase />
-                <View style={{ flexDirection: 'row', alignSelf: 'auto'}}>
-                    <Button onPress={() =>{}} rounded warning style={{ marginLeft: 15, padding:15, marginRight: 15}}>
-                        <AntDesign name='star' color='white' size={28}/>
-                    </Button>
-                    <Button onPress={reproducePhrase} rounded warning style={{ marginRight: 15, padding:15}}>
-                        <Entypo name='megaphone' color='white' size={28}/>
-                    </Button>
+        <View style={{ flex: 1}}>
+            <CustomModal modalVisible={openModal}>
+                <H1 style={{ marginBottom: 20}}>Ingrese una descripción para el recuerdo:</H1>
+                <Form>
+                    <Item style={{ marginBottom: 40}} floatingLabel>
+                        <Label>Descripción</Label>
+                        <Input onChangeText={ value => setDescription(value)}/>
+                    </Item>
+                    <View style={{ flex: 1, flexDirection: 'row', justifyContent:'space-between' }}>
+                        <Button warning onPress={hideModal}>
+                            <Text>Cancelar</Text>
+                        </Button>
+                        <Button dark onPress={savePhrase}>
+                            <Text>Guardar</Text>
+                            { loadingPhrases && <Spinner color='white' />}
+                        </Button>
+                    </View>                    
+                </Form>
+            </CustomModal>
+            <Container>
+                <View style={styles.containerPhrase}>
+                    <Phrase
+                        setOpenModal={setOpenModal} 
+                        phrase={phrase}
+                        />
                 </View>
-            </View>
-            <View style={styles.containerPictograms}>
-                <PictogramList isCRUD={false} />
-            </View>
-            <View style={styles.containerCategories}>
-                <CategoriesFilter />
-            </View>
-        </Container>
+                <View style={styles.containerPictograms}>
+                    <PictogramList isCRUD={false} />
+                </View>
+                <View style={styles.containerCategories}>
+                    <CategoriesFilter />
+                </View>
+            </Container>
+        </View>
     );
 }
 
@@ -54,6 +88,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
+        width: '100%',
         backgroundColor: '#191970'
     },
     containerPictograms: {
