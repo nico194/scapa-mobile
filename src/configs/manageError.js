@@ -14,3 +14,18 @@ export const getErrorMessage = (code) => {
             return 'Error en el sistema. Intentelo en otro momento';
     }
 }
+
+export const getResourseErrorMessage = (code) => {
+    switch (code) {
+        case 400:
+            return 'Este recurso no esta disponible en este momento, intentelo mas tarde';
+        case 401:
+            return 'La sesión a expirado. Por favor, vuelva a la pantalla de inicio de sesión';
+        case 404:
+            return 'Este recurso no esta disponible en este momento, intentelo mas tarde';
+        case 422:
+            return 'Algunos de los datos ingresados no tiene el formato correcto, por favor intentelo de nuevo';
+        default:
+            return 'Error en el sistema. Intentelo en otro momento';
+    }
+}

@@ -36,7 +36,7 @@ export const getAllPictograms = ({ accessToken, client, uid }) => {
             return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms: pictogramsGroupedByCategories[filterBy].pictograms }});
         } catch (err) {
             console.log(err)
-            return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {err}});
+            return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {err: err.response}});
         }
     }
 }
@@ -194,8 +194,9 @@ export const addPictogram = (pictogramToAdd , { accessToken, client, uid }) => {
         const headers = { headers: {
             'access-token': accessToken,
             client,
-            uid,
+            uid
         }};
+        console.log(headers)
         try {
             const imageInBase64 = await fileToBase64(pictogramToAdd.image)
             const filename = `${pictogramToAdd.description}-custom.png`;
@@ -219,7 +220,7 @@ export const addPictogram = (pictogramToAdd , { accessToken, client, uid }) => {
             return dispatch({ type: ADD_PICTOGRAM_SUCCESS, payload: { pictograms }});
         } catch (err) {
             console.log(err);
-            return dispatch({ type: ADD_PICTOGRAM_ERROR, payload: {err}});
+            return dispatch({ type: ADD_PICTOGRAM_ERROR, payload: { err: err.response }});
         }
     }
 }
@@ -243,7 +244,7 @@ export const deletePictogram = (pictogramToDelete, { accessToken, client, uid })
             return dispatch({ type: DELETE_PICTOGRAM_SUCCESS, payload: { pictograms: pictogramsFiltered }})
         } catch (err) {
             console.log(err);
-            return dispatch({ type: DELETE_PICTOGRAM_ERROR, payload: {err}})
+            return dispatch({ type: DELETE_PICTOGRAM_ERROR, payload: {err: err.response}})
         }
     }
 }
@@ -293,7 +294,7 @@ export const updatePictogram = (pictogramToUpdate, { accessToken, client, uid })
             return dispatch({ type: UPDATE_PICTOGRAM_SUCCESS, payload: { pictograms: pictogramsUpdated }});
         } catch (err) {
             console.log(err);
-            return dispatch({ type: UPDATE_PICTOGRAM_ERROR, payload: {err}});
+            return dispatch({ type: UPDATE_PICTOGRAM_ERROR, payload: {err: err.response}});
         }
     }
 }

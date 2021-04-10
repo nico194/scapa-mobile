@@ -4,7 +4,7 @@ import { addCategory, updateCategory, changedStatusCategory, groupAdded, groupDe
 import { addPictogram, updatePictogram, changedStatusPictogram, addKeyIntoPictograms, deleteKeyIntoPictograms } from '../redux/actions/pictograms';
 import { getUserFromAsyncStorage } from '../redux/actions/users';
 import { View } from 'react-native'; 
-import { Container, H1, Text, Button } from 'native-base';
+import { Container, H1, Text, Button, Toast, Root } from 'native-base';
 import CustomModal from '../components/molecules/modal/CustomModal';
 import CategoryList from '../components/organims/categories-list/CategoryList';
 import CategoryForm from '../components/molecules/category-form/CategoryForm';
@@ -21,7 +21,7 @@ export default function CustomCategoriesScreen({ navigation }) {
         id: -1,
         description: '',
         image: null,
-        idCategory: -1
+        idCategory: ''
     }
 
     const [ operation, setOperation ] = useState('Agregar');
@@ -88,35 +88,70 @@ export default function CustomCategoriesScreen({ navigation }) {
     }
 
     const addOrEditCustomCategory = () => {
-        operation === 'Agregar' ? dispatch(addCategory(category, user)) : dispatch(updateCategory(category, user));
+        Object.entries(category).toString() !== Object.entries(initialStateCategory).toString() ?
+            operation === 'Agregar' ? dispatch(addCategory(category, user)) : dispatch(updateCategory(category, user))
+            :
+            Toast.show({
+                text: 'Debe completar el campo de descripción',
+                buttonText: 'Aceptar',
+                type: 'danger',
+                duration: 2000
+            })
     }
 
     const addOrEditCustomPictogram = () => {
-        operation === 'Agregar' ? dispatch(addPictogram(pictogram, user)) : dispatch(updatePictogram(pictogram, user));
+        isNotValidForm() ?
+            Toast.show({
+                text: 'Debe completar todos los campos',
+                buttonText: 'Aceptar',
+                type: 'danger',
+                duration: 2000
+            })
+            :
+            operation === 'Agregar' ? dispatch(addPictogram(pictogram, user)) : dispatch(updatePictogram(pictogram, user));
+    }
+
+    const isNotValidForm = () => {
+        let isNotValid = false;
+        Object.keys(pictogram).forEach(key => {
+            console.log(typeof key, key, pictogram[key])
+            if (key === 'image') {
+                if (pictogram[key] === null) return isNotValid = true
+            } else {
+                if (pictogram[key] === '' ) return isNotValid = true 
+            }
+        });
+        console.log('not valid? ', isNotValid)
+        return isNotValid;
     }
     
     return (
         <Container>
             <CustomModal modalVisible={showAddCategory}>
-                <CategoryForm 
-                    loading={loadingCategories}
-                    category={category}
-                    setCategory={setCategory}
-                    operation={operation}
-                    addOrEditCustomCategory={addOrEditCustomCategory}
-                    hideModal={hideModal}
-                    />
+                <Root>
+                    <CategoryForm 
+                        loading={loadingCategories}
+                        category={category}
+                        setCategory={setCategory}
+                        operation={operation}
+                        addOrEditCustomCategory={addOrEditCustomCategory}
+                        hideModal={hideModal}
+                        />
+                </Root>
             </CustomModal>
             <CustomModal modalVisible={showAddPictogram}>
-                <PictogramForm 
-                    loading={loadingPictograms}
-                    pictogram={pictogram}
-                    setPictogram={setPictogram}
-                    operation={operation}
-                    addOrEditCustomPictogram={addOrEditCustomPictogram}
-                    hideModal={hideModal}
-                    hasCategory={false}
-                    />
+                <Root>
+                    <PictogramForm 
+                        loading={loadingPictograms}
+                        pictogram={pictogram}
+                        setPictogram={setPictogram}
+                        operation={operation}
+                        addOrEditCustomPictogram={addOrEditCustomPictogram}
+                        hideModal={hideModal}
+                        hasCategory={false}
+                        navigation={navigation}
+                        />
+                </Root>
             </CustomModal>
             <H1 style={{ textAlign: 'center', marginBottom: 20, color: '#fff' }}>Categorias</H1>
             <View style={{ flex: .2, flexDirection: 'row', justifyContent: 'space-around' }}>

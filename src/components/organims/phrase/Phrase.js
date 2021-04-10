@@ -1,17 +1,16 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
-import { useDispatch } from 'react-redux';
-import { Button, H3, Spinner } from 'native-base';
+import { useDispatch, useSelector } from 'react-redux';
+import { Button, Spinner, Toast } from 'native-base';
 import PictogramToPhrase from '../../molecules/pictogram-to-phrase/PictogramToPhrase';
 import { removePictogramToPhrase } from '../../../redux/actions/pharses';
-import { AntDesign, Entypo, FontAwesome, Feather } from '@expo/vector-icons';
+import { AntDesign, Entypo, FontAwesome } from '@expo/vector-icons';
 import * as Speech from 'expo-speech';
 
 export default function Phrase({ setOpenModal, phrase, showPhrases = false, onDelete, loading, isRoutine }) {
 
     const dispatch = useDispatch();
-
-    console.log(phrase)
+    const { user } = useSelector(state => state.users)
 
     const phraseToShow = phrase.map( (pictogram, index) => {
         return (
@@ -24,11 +23,32 @@ export default function Phrase({ setOpenModal, phrase, showPhrases = false, onDe
     })   
 
     const reproducePhrase = () => {
-        let phraseToReproduce = '';
-        phrase.forEach(pictogram => {
-            phraseToReproduce += `${pictogram.attributes.description} `;
-        });
-        Speech.speak(phraseToReproduce)
+        if(phrase.length > 0) {
+            let phraseToReproduce = '';
+            phrase.forEach(pictogram => {
+                phraseToReproduce += `${pictogram.attributes.description} `;
+            });
+            Speech.speak(phraseToReproduce)
+        } else {
+            Toast.show({
+                text: 'Debe seleccionar al menos un pictograma para reproducir la frase',
+                buttonText: 'Aceptar',
+                type: 'danger',
+                duration: 2000
+            })
+        }
+    }
+
+    const handleSavePhrase = () => {
+        phrase.length > 0 ?
+            setOpenModal(true)
+            :
+            Toast.show({
+                text: 'Debe seleccionar al menos un pictograma para guardar la frase',
+                buttonText: 'Aceptar',
+                type: 'danger',
+                duration: 2000
+            })
     }
 
     return (
@@ -42,7 +62,7 @@ export default function Phrase({ setOpenModal, phrase, showPhrases = false, onDe
                 {
                     !showPhrases ? 
                     (
-                        <Button onPress={() => setOpenModal(true)} rounded warning style={{ marginLeft: 15, padding:15, marginRight: 15}}>
+                        <Button onPress={handleSavePhrase} rounded warning style={{ marginLeft: 15, padding:15, marginRight: 15}}>
                             <AntDesign name='star' color='white' size={28}/>
                         </Button>
                     ) :
@@ -58,9 +78,12 @@ export default function Phrase({ setOpenModal, phrase, showPhrases = false, onDe
                         </Button>
                     )
                 }
-                <Button onPress={reproducePhrase} rounded warning style={{ marginRight: 15, padding:15}}>
-                    <Entypo name='megaphone' color='white' size={28}/>
-                </Button>
+                {
+                    user.voice &&
+                        <Button onPress={reproducePhrase} rounded warning style={{ marginRight: 15, padding:15}}>
+                            <Entypo name='megaphone' color='white' size={28}/>
+                        </Button>
+                }
             </View>
         </View>
     )

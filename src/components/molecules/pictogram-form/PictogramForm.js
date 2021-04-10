@@ -1,42 +1,54 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { Image, View, Dimensions } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { Image, View, Dimensions, ActivityIndicator } from 'react-native';
 import { Button, Form, H1, Input, Item, Label, Text, Spinner } from 'native-base';
 import DropDownPicker from 'react-native-dropdown-picker'
 import * as ImagePicker from 'expo-image-picker';
 import * as Permissions from 'expo-permissions';
 import { Camera } from 'expo-camera'
 import { Entypo } from '@expo/vector-icons';
+import { getResourseErrorMessage } from '../../../configs/manageError';
+import ErrorMessage from '../error-message/ErrorMessage';
+import { emptyPhrases } from '../../../redux/actions/pharses';
+import { emptyPictograms } from '../../../redux/actions/pictograms';
+import { emptyCategories } from '../../../redux/actions/categories';
+import { logOutUser } from '../../../redux/actions/users';
 
-export default function PictogramForm({ loading, operation, setPictogram, pictogram, addOrEditCustomPictogram, hideModal, hasCategory }) {
+export default function PictogramForm({ loading, operation, setPictogram, pictogram, addOrEditCustomPictogram, hideModal, hasCategory, navigation }) {
 
     const camRef = useRef(null);
     const [openCamera, setOpenCamera] = useState(false);
     const [type, setType] = useState(Camera.Constants.Type.back);
-    const [permission, askForPermission] = Permissions.usePermissions([Permissions.CAMERA, Permissions.MEDIA_LIBRARY], { ask: true });
+    const [requestPermission, setRequestPermission] = useState(false)
+    const [permission, setPermission] = useState(false);
 
+    const dispatch = useDispatch();
+    const { user } = useSelector(state => state.users)
+    const { err } = useSelector(state => state.pictograms)
     const { categories } = useSelector(state => state.categories); 
     const customCategories = categories.filter( cat => cat.isCustom).map(category => ({ label: category.attributes.description, value: category.id })); 
 
     const { width, height } = Dimensions.get('window');
 
-    useEffect(() => {
-        (async () => {
-            if (Platform.OS !== 'web') {
-                const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-                if (status !== 'granted') {
-                    alert('Sorry, we need camera roll permissions to make this work!');
-                }
-            }
-        })();
-    }, []);
+
+    const getPermission = async () => {
+        setRequestPermission(true);
+        const { status } = await Permissions.getAsync(Permissions.CAMERA, Permissions.MEDIA_LIBRARY);
+        setPermission(status === 'granted');
+        setRequestPermission(false);
+    }
 
     useEffect(() => {
-        (async () => {
-            const { status } = await Camera.requestPermissionsAsync();
-            status !== 'granted' && askForPermission()
-        })();
-    }, [])
+        getPermission();
+    }, []);
+
+    const askForPermission = async () => {
+        setRequestPermission(true);
+        const { status } = await Permissions.askAsync(Permissions.CAMERA, Permissions.MEDIA_LIBRARY);
+        setPermission(status === 'granted');
+        setRequestPermission(false);
+    }
+        
 
     const handleOnChangeText = (name, value) => {
         setPictogram({
@@ -69,6 +81,37 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
         }
     }
 
+    useEffect(() => {
+        Object.keys(user).length === 0 && navigation.navigate('Login');
+    })
+
+    const goToLogin = () => {
+        dispatch(emptyPhrases());
+        dispatch(emptyPictograms());
+        dispatch(emptyCategories());
+        dispatch(logOutUser())
+    }
+
+    if(requestPermission) {
+        return (
+            <ActivityIndicator color='#191970' />
+        )
+    }
+
+    if (!permission) {
+        return (
+          <View>
+            <Text style={{ marginBottom: 30 }}>Primero necesita otorgar todos los permisos</Text>
+            <Button style={{ marginBottom: 30 }} dark onPress={askForPermission}>
+                <Text>Solicitar permisos</Text>
+            </Button>
+            <Button warning onPress={hideModal}>
+                <Text>Cancelar</Text>
+            </Button>
+          </View>
+        );
+      }
+
     return (
         <View style={{ height: '100%' }}>
             <Camera
@@ -90,12 +133,14 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
                 </Button>
             </Camera>
             <View style={[openCamera ? { display: 'none' } : { flex: 1 }]}>
-                {!permission || permission.status !== 'granted' &&
-                    (
-                        <Button onPress={askForPermission} danger>
-                            <Text>Primero otorgue los permisos correspondientes </Text>
-                        </Button>
-                    )
+                {
+                    err &&
+                        <ErrorMessage 
+                            message={getResourseErrorMessage(err.status)}
+                            showButton={err.status === 401}
+                            messageButton='Volver a iniciar sesión'
+                            onPress={goToLogin}
+                            />
                 }
                 <H1>{`${operation} pictograma`}</H1>
                 <Form>
@@ -117,7 +162,8 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
                         <DropDownPicker
                             items={customCategories}
                             placeholder="Seleccione una categoría:"
-                            containerStyle={[ true ? {height: 40, marginBottom: 40} : { display:'none' }]}
+                            containerStyle={{height: 40, marginBottom: 40}}
+                            dropDownStyle={{ elevation: 5 }}
                             onChangeItem={item => setPictogram({ ...pictogram, idCategory: item.value})}
                         />
                     }

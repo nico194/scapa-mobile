@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux'
-import { StyleSheet, ScrollView, View } from 'react-native';
+import { StyleSheet, ScrollView, View, Alert } from 'react-native';
 import { H1, Spinner } from 'native-base';
 import Pictogram from '../../molecules/pictogram/Pictogram';
 import { deletePictogram } from '../../../redux/actions/pictograms'
@@ -24,6 +24,20 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
         setOperation('Actualizar');
         setShowAddPictogram(true)
     }
+
+    const handleDeletePictogram = (pictogram) => {
+        Alert.alert(
+            "Eliminar Pictograma",
+            "¿Esta seguro que desea eliminar este pictograma?",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel"
+              },
+              { text: "Aceptar", onPress: () => dispatch(deletePictogram(pictogram, user)) }
+            ]
+        );
+    }
     
     const pictorgramsList = pictograms !== undefined && pictograms.map( (pictogram, index) => {
         return (
@@ -31,7 +45,7 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
                 key={index}
                 isCRUD={isCRUD}
                 onUpdate={() => updatePictogram(pictogram)}
-                onDelete={() => dispatch(deletePictogram(pictogram, user))}
+                onDelete={() => handleDeletePictogram(pictogram)}
                 onPress={() => dispatch(addPictogramToPhrase(pictogram))} 
                 description={pictogram.attributes.description}
                 image={pictogram.image}           

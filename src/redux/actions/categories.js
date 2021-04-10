@@ -94,7 +94,7 @@ export const addCategory = (categoryToAdd, { accessToken, client, uid }) => {
             return dispatch({ type: ADD_CATEGORY_SUCCESS, payload: { categories: newCategories, category }})
         } catch (err) {
             console.log(err);
-            return dispatch({ type: ADD_CATEGORY_ERROR, payload: {err}})
+            return dispatch({ type: ADD_CATEGORY_ERROR, payload: {err: err.response}})
         }
     }
 }
@@ -118,7 +118,7 @@ export const deleteCategory = (categoryToDelete, { accessToken, client, uid }) =
             return dispatch({ type: DELETE_CATEGORY_SUCCESS, payload: { categories: categoriesFilter, category }});
         } catch (err) {
             console.log(err);
-            return dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err}});
+            return dispatch({ type: DELETE_CATEGORY_ERROR, payload: {err: err.response}});
         }
     }
 }
@@ -148,7 +148,7 @@ export const updateCategory = (categoryToUpdate, { accessToken, client, uid }) =
             return dispatch({ type: UPDATE_CATEGORY_SUCCESS, payload: { categories, category }})
         } catch (err) {
             console.log(err);
-            return dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err}})
+            return dispatch({ type: UPDATE_CATEGORY_ERROR, payload: {err: err.response}})
         }
     }
 }

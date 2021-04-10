@@ -12,7 +12,6 @@ export default function RegisterScreen({ navigation }) {
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ passwordRepeat, setPasswordRepeat ] = useState('');
-    const image = require('../../assets/backgroundLogin.png');
 
     const dispatch = useDispatch();
     const { loadingUser, isLogged, error } = useSelector(state => state.users)
@@ -23,7 +22,11 @@ export default function RegisterScreen({ navigation }) {
 
     
     const handlerSignUp = () => {
-        dispatch(authenticationUser({ email, password }));
+        if (password === passwordRepeat) {
+            dispatch(authenticationUser({ email, password }));
+        } else {
+            error.status = 'Las contraseñas deben ser iguales'
+        }
     }
     
     useEffect(() => {
@@ -54,11 +57,11 @@ export default function RegisterScreen({ navigation }) {
                                 </Item>
                                 <Item stackedLabel>
                                     <Label style={{marginLeft: 5}}>Contraseña</Label>
-                                    <Input onChangeText={ (value) => setPassword(value)}/>
+                                    <Input secureTextEntry={true} onChangeText={ (value) => setPassword(value)}/>
                                 </Item>
                                 <Item stackedLabel>
                                     <Label style={{marginLeft: 5}}>Confirmar Contraseña</Label>
-                                    <Input onChangeText={ (value) => setPasswordRepeat(value)}/>
+                                    <Input secureTextEntry={true} onChangeText={ (value) => setPasswordRepeat(value)}/>
                                 </Item>
                             </Form> 
                         </Body>

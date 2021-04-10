@@ -1,8 +1,10 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Container, Content, H1, Spinner } from 'native-base'
-import { getUserFromAsyncStorage } from '../redux/actions/users';
-import { getPhrases } from '../redux/actions/pharses';
+import { getUserFromAsyncStorage, logOutUser } from '../redux/actions/users';
+import { emptyPhrases, getPhrases } from '../redux/actions/pharses';
+import { emptyCategories } from '../redux/actions/categories';
+import { emptyPictograms } from '../redux/actions/pictograms';
 import PhraseToShow from '../components/organims/phrase-to-show/PhraseToShow';
 import { ScrollView } from 'react-native';
 import EmptyPhrase from '../components/molecules/empty-phrase/EmptyPhrase';
@@ -10,9 +12,7 @@ import EmptyPhrase from '../components/molecules/empty-phrase/EmptyPhrase';
 export default function RoutinesScreen() {
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.users)
-    const { phrases, loadingPhrases } = useSelector(state => state.phrases);
-
-    console.log('phs: ', phrases)
+    const { phrases, loadingPhrases, err } = useSelector(state => state.phrases);
 
     useEffect(() => {
         dispatch(getUserFromAsyncStorage())
@@ -36,10 +36,26 @@ export default function RoutinesScreen() {
         )
     });
 
+    const goToLogin = () => {
+        dispatch(emptyPhrases());
+        dispatch(emptyPictograms());
+        dispatch(emptyCategories());
+        dispatch(logOutUser())
+    }
+
     return (
         <Container>
             <Content padder>
                 <H1 style={{ fontSize: 40, color: '#fff', paddingTop: 30, marginBottom: 30}}>Rutinas</H1>
+                {
+                    err &&
+                        <ErrorMessage 
+                            message={getResourseErrorMessage(err.status)}
+                            showButton={err.status === 401}
+                            messageButton='Volver a iniciar sesión'
+                            onPress={goToLogin}
+                            />
+                }
                 <ScrollView>
                     {
                         loadingPhrases ?

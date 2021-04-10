@@ -1,19 +1,21 @@
 import React, { useEffect } from 'react'
 import { Container, Content, H1, H2, H4, Spinner, View } from 'native-base'
 import { useDispatch, useSelector } from 'react-redux';
-import { ScrollView } from 'react-native';
-import { deletePhrase, getPhrases } from '../redux/actions/pharses';
-import { getUserFromAsyncStorage } from '../redux/actions/users';
+import { Alert, ScrollView } from 'react-native';
+import ErrorMessage from '../components/molecules/error-message/ErrorMessage'
+import { deletePhrase, emptyPhrases, getPhrases } from '../redux/actions/pharses';
+import { getUserFromAsyncStorage, logOutUser } from '../redux/actions/users';
 import EmptyPhrase from '../components/molecules/empty-phrase/EmptyPhrase';
 import PhraseToShow from '../components/organims/phrase-to-show/PhraseToShow';
+import { getResourseErrorMessage } from '../configs/manageError';
+import { emptyPictograms } from '../redux/actions/pictograms';
+import { emptyCategories } from '../redux/actions/categories';
 
 export default function MemoriesScreen({ navigation }) {
 
     const dispatch = useDispatch();
     const { user } = useSelector(state => state.users)
-    const { phrases, loadingPhrases } = useSelector(state => state.phrases);
-
-    console.log('phs: ', phrases)
+    const { phrases, loadingPhrases, err } = useSelector(state => state.phrases);
 
     useEffect(() => {
         dispatch(getUserFromAsyncStorage())
@@ -22,6 +24,21 @@ export default function MemoriesScreen({ navigation }) {
     useEffect(() => {
         dispatch(getPhrases());
     }, [])
+
+    const handleDeleteMemory = (memory) => {
+        Alert.alert(
+            "Eliminar Recuerdo",
+            "¿Esta seguro que desea eliminar este Recuerdo?",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel"
+              },
+              { text: "Aceptar", onPress: () => dispatch(deletePhrase(memory, user)) }
+            ]
+        );
+    }
+    
 
     const phrasesList = phrases.length > 0 && phrases.filter(memory => memory.type === 'remembrance').map((memory, index) => {
         return (
@@ -32,15 +49,31 @@ export default function MemoriesScreen({ navigation }) {
                 phrase={memory.pictograms}
                 showPhrases={true}
                 isRoutine={false}
-                onDelete={() => dispatch(deletePhrase(memory, user))}
+                onDelete={() => handleDeleteMemory(memory)}
                 />
         )
     });
+
+    const goToLogin = () => {
+        dispatch(emptyPhrases());
+        dispatch(emptyPictograms());
+        dispatch(emptyCategories());
+        dispatch(logOutUser())
+    }
 
     return (
         <Container>
             <Content padder>
                 <H1 style={{ fontSize: 40, color: '#fff', paddingTop: 30, marginBottom: 30}}>Recuerdos</H1>
+                {
+                    err &&
+                        <ErrorMessage 
+                            message={getResourseErrorMessage(err.status)}
+                            showButton={err.status === 401}
+                            messageButton='Volver a iniciar sesión'
+                            onPress={goToLogin}
+                            />
+                }
                 <ScrollView>
                     {
                         loadingPhrases ?

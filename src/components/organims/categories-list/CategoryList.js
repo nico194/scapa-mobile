@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { ScrollView } from 'react-native';
+import { Alert, ScrollView } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { deleteCategory, getCategories } from '../../../redux/actions/categories';
 import CategoryToList from '../../molecules/category-to-list/CategoryToList';
@@ -14,6 +14,20 @@ export default function CategoryList({ navigation, setCategory, setShowAddCatego
         dispatch(getCategories());
     }, [changedCategories])
 
+    const handleDeleteCategory = (category) => {
+        Alert.alert(
+            "Eliminar Categoría",
+            "¿Esta seguro que desea eliminar esta categoría? Tenga en cuenta que al eliminar esta categoría, se eliminarán los pictogramas que hay dentro de ella.",
+            [
+              {
+                text: "Cancelar",
+                style: "cancel"
+              },
+              { text: "Aceptar", onPress: () => dispatch(deleteCategory(category, user)) }
+            ]
+        );
+    }
+
     const categoriesList = categories !== undefined && categories.filter( cat => cat.isCustom).map( (category, index) => {
         return (
             <CategoryToList 
@@ -21,7 +35,7 @@ export default function CategoryList({ navigation, setCategory, setShowAddCatego
                 loading={loadingCategories}
                 onPressCategory={() => openModadToEdit(category)}
                 onPressArrow={() => navigation.navigate('CustomPictograms', { idCategory : category.id })}
-                onPressDelete={() => dispatch(deleteCategory(category, user))}
+                onPressDelete={() => handleDeleteCategory(category)}
                 description={category.attributes.description}
             />
         )
