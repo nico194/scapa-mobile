@@ -9,7 +9,8 @@ import {
     INIT_HOME,
     PASSWORD_VERIFIED,
     USER_LOGOUT,
-    USER_ASYNC_STORAGE
+    USER_ASYNC_STORAGE,
+    DIFFERENT_PASSWORD
 } from '../constants/users';
 import axiosConfig from '../../configs/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -69,6 +70,8 @@ export const authenticationUser = (user, route = '') => {
         }
     }
 }
+
+export const differentPassword = () => dispatch => dispatch({ type: DIFFERENT_PASSWORD, payload: { message : 'Las contraseñas deben ser iguales' } })
 
 export const cleanError = () => dispatch => dispatch({ type: CLEAN_ERROR });
 

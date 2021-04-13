@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { authenticationUser } from '../redux/actions/users'
-import { StyleSheet, Dimensions } from 'react-native';
+import { authenticationUser, differentPassword } from '../redux/actions/users'
+import { StyleSheet } from 'react-native';
 import { Container, Content, Card, CardItem, Text, Body, Form, Item, Input, Label, Button, Left, Right, Spinner} from 'native-base';
 import { MaterialIcons } from '@expo/vector-icons';
 import { setOrientation } from '../configs/orientation';
@@ -25,7 +25,7 @@ export default function RegisterScreen({ navigation }) {
         if (password === passwordRepeat) {
             dispatch(authenticationUser({ email, password }));
         } else {
-            error.status = 'Las contraseñas deben ser iguales'
+            dispatch(differentPassword()); 
         }
     }
     
@@ -45,7 +45,14 @@ export default function RegisterScreen({ navigation }) {
                     {
                         error && !loadingUser &&
                             <CardItem >
-                                <Text style={{ padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>{ getErrorMessage(error.status) }</Text>
+                                <Text style={{ width: '100%', padding: 20, backgroundColor: '#fa9191', color: '#bf0000', borderColor: '#bf0000', borderWidth: 2 }}>
+                                    {
+                                        error.status !== undefined ?
+                                            getErrorMessage(error.status) 
+                                            :
+                                            error
+                                    }
+                                </Text>
                             </CardItem>
                     }
                     <CardItem>

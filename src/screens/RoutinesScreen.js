@@ -62,7 +62,7 @@ export default function RoutinesScreen() {
                             <Spinner color='#fff'/>
                             :
                             (
-                                phrases.length == 0 ?
+                                phrases.filter(memory => memory.type === 'routine').length === 0 ?
                                     <EmptyPhrase goTo={false}  />
                                     :
                                     phrasesList

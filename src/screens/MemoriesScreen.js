@@ -80,7 +80,7 @@ export default function MemoriesScreen({ navigation }) {
                             <Spinner color='#fff'/>
                             :
                             (
-                                phrases.length == 0 ?
+                                phrases.filter(memory => memory.type === 'remembrance').length === 0 ?
                                     <EmptyPhrase goTo={() => navigation.navigate('Speak')}  />
                                     :
                                     phrasesList

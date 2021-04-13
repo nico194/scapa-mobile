@@ -5,9 +5,9 @@ import { View } from 'react-native'
 export default function EmptyPhrase({ goTo }) {
     return (
         <View>
-            <H2 style={{ marginBottom: 20, color: '#fff'}}>{ !goTo ? 'No hay Recuerdos almacenados' : 'No hay Rutinas registradas en el sistema'}</H2>
+            <H2 style={{ marginBottom: 20, color: '#fff'}}>{ goTo ? 'No hay Recuerdos almacenados' : 'No hay Rutinas registradas en el sistema'}</H2>
             {
-                !goTo && 
+                goTo && 
                 (
                     <View>
                         <H3 style={{ marginBottom: 20, color: '#fff'}}>Para crear Recuerdos vaya a la sección de Empecemos a Hablar</H3>

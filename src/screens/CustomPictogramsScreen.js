@@ -63,14 +63,12 @@ export default function CustomPictogramsScreen({ route, navigation }) {
     const isNotValidForm = () => {
         let isNotValid = false;
         Object.keys(pictogram).forEach(key => {
-            console.log(typeof key, key, pictogram[key])
             if (key === 'image') {
                 if (pictogram[key] === null) return isNotValid = true
             } else {
                 if (pictogram[key] === '' ) return isNotValid = true 
             }
         });
-        console.log('not valid? ', isNotValid)
         return isNotValid;
     }
 

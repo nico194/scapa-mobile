@@ -4,6 +4,7 @@ export const AUTH_ERROR = 'AUTH_ERROR';
 export const USER_IS_LOGGED = 'USER_IS_LOGGED';
 export const USER_IS_NOT_LOGGED = 'USER_IS_NOT_LOGGED';
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
+export const DIFFERENT_PASSWORD = 'DIFFERENT_PASSWORD';
 export const CLEAN_ERROR = 'CLEAN_ERROR';
 export const USER_LOGOUT = 'USER_LOGOUT';
 export const INIT_HOME = 'INIT_HOME';

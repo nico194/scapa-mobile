@@ -8,7 +8,8 @@ import {
     PASSWORD_VERIFIED,
     USER_IS_LOGGED,
     USER_IS_NOT_LOGGED,
-    GET_USER
+    GET_USER,
+    DIFFERENT_PASSWORD
 } from '../constants/users';
  
 const initialState = {
@@ -75,6 +76,12 @@ const usersReducer = (state = initialState, { type, payload }) => {
             return {
                 ...state,
                 canConfig: false
+            }
+        }
+        case DIFFERENT_PASSWORD: {
+            return {
+                ...state,
+                error: payload.message 
             }
         }
         case CLEAN_ERROR: {
