@@ -26,11 +26,11 @@ export default function CategoriesFilter() {
         setCategoryIndex(index);
         dispatch(filterPictogramsByCategory(id, isCustom))
     }
-    
+
     const categoriesFilter = categories.map((category, index) => {
         return (
-            <Category 
-                key={index} 
+            <Category
+                key={index}
                 onPress={() => filterByCategory(category.id, index, category.isCustom)}
                 selected={index === categoryIndex}
                 lastOne={index === categories.length}
@@ -47,6 +47,12 @@ export default function CategoriesFilter() {
                     <Spinner color='#fff' />
                     :
                     <View style={styles.content}>
+                        <Category
+                            onPress={() => filterByCategory(-1, -1, true)}
+                            selected={-1 === categoryIndex}
+                            lastOne={false}
+                            description='Favoritos'
+                            />
                         { categoriesFilter }
                     </View>
             }

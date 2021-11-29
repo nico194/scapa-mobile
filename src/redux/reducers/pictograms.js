@@ -10,7 +10,9 @@ import {
     DELETE_PICTOGRAM_ERROR,
     CHANGED_STATUS,
     RESET_STATE,
-    GET_PICTOGRAMS
+    GET_PICTOGRAMS,
+    ADD_FAVORITE,
+    CLEAN_ERROR
     } from '../constants/pictograms';
 
 const initialState = {
@@ -72,6 +74,15 @@ function pictogramsReducer(state = initialState, {type, payload}) {
                 ...state,
                 changedPictograms: false
             }
+        }
+        case CLEAN_ERROR: {
+            return {
+                ...state,
+                err: null
+            }
+        }
+        case ADD_FAVORITE: {
+            return state;
         }
         case RESET_STATE: {
             return state = initialState

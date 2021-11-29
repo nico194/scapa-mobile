@@ -9,9 +9,13 @@ import {
     DELETE_PICTOGRAM_SUCCESS,
     DELETE_PICTOGRAM_ERROR,
     PICTOGRAMS_ASYNC_STORAGE,
+    FAVORITES_PICTOGRAMS,
+    ADD_FAVORITE,
     CHANGED_STATUS,
     RESET_STATE,
-    GET_PICTOGRAMS
+    GET_PICTOGRAMS,
+    CLEAN_ERROR,
+    MAX_QUANTITY_OF_FAVORITES_PICTOGRAMS
     } from '../constants/pictograms';
 import axiosConfig from '../../configs/axios';
 import { fileToBase64, donwloadAndSaveFile, deleteFile } from '../../configs/manageFiles';
@@ -19,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getAllPictograms = ({ accessToken, client, uid }) => {
     return async dispatch => {
-        dispatch({ type: FETCH_PICTOGRAMS_PENDING });        
+        dispatch({ type: FETCH_PICTOGRAMS_PENDING });
         const headers = { headers: {
             'access-token': accessToken,
             client,
@@ -27,13 +31,10 @@ export const getAllPictograms = ({ accessToken, client, uid }) => {
         }}
         let pictogramsGroupedByCategories = {};
         try {
-            const defaultId = await getPictogramsFromAPI('pictograms', headers, pictogramsGroupedByCategories);
-            console.log('default id: ', defaultId);
-            const customId = await getPictogramsFromAPI('custom_pictograms', headers, pictogramsGroupedByCategories); 
-            console.log('custom id: ', customId);
-            const filterBy =  customId >= 0 ? `${customId}-custom` : `${defaultId}-default`;
+            await getPictogramsFromAPI('pictograms', headers, pictogramsGroupedByCategories);
+            await getPictogramsFromAPI('custom_pictograms', headers, pictogramsGroupedByCategories);
             await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictogramsGroupedByCategories))
-            return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms: pictogramsGroupedByCategories[filterBy].pictograms }});
+            return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms: [] }});
         } catch (err) {
             console.log(err)
             return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {err: err.response}});
@@ -58,7 +59,7 @@ const getPictogramsFromAPI = async (source, headers, pictogramsGroupedByCategori
             } else {
                 band = false;
             }
-        } 
+        }
     } catch (error) {
         console.log(error)
     }
@@ -98,9 +99,50 @@ export const filterPictogramsByCategory = (idCategory, isCustom) => {
     return async dispatch => {
         dispatch({ type: FETCH_PICTOGRAMS_PENDING });
         try {
-            const category = `${idCategory}-${ isCustom ? 'custom' : 'default'}`;
-            const pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
+            let pictograms = [];
+            if (idCategory === -1) {
+                pictograms = await getFavoritesPictograms();
+            } else {
+                const category = `${idCategory}-${ isCustom ? 'custom' : 'default'}`;
+                pictograms = await getPictogramsByCategoryFromAsyncStorage(category);
+            }
             return dispatch({ type: FETCH_PICTOGRAMS_SUCCESS, payload: { pictograms }})
+        } catch (error) {
+            console.log(error);
+            return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {error}});
+        }
+    }
+}
+
+const getFavoritesPictograms = async () => {
+    try {
+        const pics = await AsyncStorage.getItem(FAVORITES_PICTOGRAMS);
+        return pics ? JSON.parse(pics) : [];
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+const setFavoritesPictograms = async (pictograms) => {
+    try {
+        await AsyncStorage.setItem(FAVORITES_PICTOGRAMS, JSON.stringify(pictograms));
+        return ;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+export const addPictogramToFavorites = (pictogram) => {
+    return async dispatch => {
+        try {
+            const pictograms = await getFavoritesPictograms();
+            const findIt = pictograms.findIndex(pic => pic.id === pictogram.id);
+            if(findIt === -1) {
+                if(pictograms.length >= MAX_QUANTITY_OF_FAVORITES_PICTOGRAMS) pictograms.pop(); 
+                const pictogramsAdded = [ pictogram, ...pictograms ];
+                await setFavoritesPictograms(pictogramsAdded);
+                return dispatch({ type: ADD_FAVORITE });
+            }
         } catch (error) {
             console.log(error);
             return dispatch({ type: FETCH_PICTOGRAMS_ERROR, payload: {error}});
@@ -121,7 +163,7 @@ const getPictogramsByCategoryFromAsyncStorage = async (category) => {
             };
             await setPictogramsFromAsyncStorage(pictogramsGroupedByCategories)
         }
-        return pictograms;        
+        return pictograms;
     } catch (error) {
         console.log('get pictograms in category: ', error);
     }
@@ -142,7 +184,7 @@ const setPictogramsByCategoryIntoAsyncStorage  = async (pictograms, category) =>
 const getPictogramsFromAsyncStorage = async () => {
     try {
         const pics = await AsyncStorage.getItem(PICTOGRAMS_ASYNC_STORAGE);
-        return JSON.parse(pics);       
+        return JSON.parse(pics);
     } catch (error) {
         console.log(error);
     }
@@ -151,7 +193,7 @@ const getPictogramsFromAsyncStorage = async () => {
 const setPictogramsFromAsyncStorage = async (pictograms) => {
     try {
         await AsyncStorage.setItem(PICTOGRAMS_ASYNC_STORAGE, JSON.stringify(pictograms));
-        return;       
+        return;
     } catch (error) {
         console.log(error);
     }
@@ -300,6 +342,8 @@ export const updatePictogram = (pictogramToUpdate, { accessToken, client, uid })
 }
 
 export const changedStatusPictogram = () => dispatch => dispatch({ type: CHANGED_STATUS })
+
+export const cleanError = () => dispatch => dispatch({ type: CLEAN_ERROR })
 
 export const emptyPictograms = () => {
     return async dispatch => {

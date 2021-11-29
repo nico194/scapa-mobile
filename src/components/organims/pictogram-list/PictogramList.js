@@ -3,14 +3,19 @@ import { useDispatch, useSelector } from 'react-redux'
 import { StyleSheet, ScrollView, View, Alert } from 'react-native';
 import { H1, Spinner } from 'native-base';
 import Pictogram from '../../molecules/pictogram/Pictogram';
-import { deletePictogram } from '../../../redux/actions/pictograms'
+import { addPictogramToFavorites, deletePictogram } from '../../../redux/actions/pictograms'
 import { addPictogramToPhrase } from '../../../redux/actions/pharses';
 
 export default function PictogramList({ isCRUD = false, idCategory, setPictogram, setOperation, setShowAddPictogram }) {
-    
+
     const dispatch = useDispatch()
     const { user } = useSelector(state => state.users)
     const { pictograms, loadingPictograms } = useSelector(state => state.pictograms);
+
+    const handleAddPictogram = (pictogram) => {
+        dispatch(addPictogramToPhrase(pictogram));
+        dispatch(addPictogramToFavorites(pictogram));
+    }
 
     const updatePictogram = (pictogram) => {
         const pic = {
@@ -38,17 +43,17 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
             ]
         );
     }
-    
+
     const pictorgramsList = pictograms !== undefined && pictograms.map( (pictogram, index) => {
         return (
-            <Pictogram 
+            <Pictogram
                 key={index}
                 isCRUD={isCRUD}
                 onUpdate={() => updatePictogram(pictogram)}
                 onDelete={() => handleDeletePictogram(pictogram)}
-                onPress={() => dispatch(addPictogramToPhrase(pictogram))} 
+                onPress={() => handleAddPictogram(pictogram)}
                 description={pictogram.attributes.description}
-                image={pictogram.image}           
+                image={pictogram.image}
                 />
         )
     });
@@ -61,7 +66,7 @@ export default function PictogramList({ isCRUD = false, idCategory, setPictogram
                         <Spinner />
                         :
                         pictograms.length > 0 ?
-                            pictorgramsList 
+                            pictorgramsList
                             :
                             <H1 style={{ color: '#fff' }}>No hay pictogramas cargados aquí</H1>
                 }

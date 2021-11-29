@@ -27,7 +27,7 @@ export default function SpeakScreen({ navigation }) {
     }, [navigation])
 
     useEffect(() => {
-        dispatch(getUserFromAsyncStorage())
+        dispatch(getUserFromAsyncStorage('favourites'))
     }, [])
 
     const hideModal = () => {
@@ -42,7 +42,7 @@ export default function SpeakScreen({ navigation }) {
                 pictograms: phrase,
                 description
             }
-            dispatch(addPhrase(phraseToAdd, user));   
+            dispatch(addPhrase(phraseToAdd, user));
         } else {
             setShowError(true)
         }
@@ -59,7 +59,6 @@ export default function SpeakScreen({ navigation }) {
         dispatch(emptyCategories());
         dispatch(logOutUser())
     }
-    
 
     return (
         <View style={{ flex: 1}}>
@@ -79,7 +78,7 @@ export default function SpeakScreen({ navigation }) {
                         <Label>Descripción</Label>
                         <Input onChangeText={ value => setDescription(value)}/>
                         {
-                            showError && 
+                            showError &&
                                 <Icon name='close-circle' />
                         }
                     </Item>
@@ -91,7 +90,7 @@ export default function SpeakScreen({ navigation }) {
                             <Text>Guardar</Text>
                             { loadingPhrases && <Spinner color='white' />}
                         </Button>
-                    </View>                    
+                    </View>
                 </Form>
             </CustomModal>
             <Container>
@@ -129,7 +128,7 @@ const styles = StyleSheet.create({
     },
     containerCategories: {
         flex: 0.7,
-        justifyContent: 'center',      
+        justifyContent: 'center',
         backgroundColor: '#191970'
     }
 });

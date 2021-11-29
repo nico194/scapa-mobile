@@ -10,7 +10,7 @@ import { Entypo } from '@expo/vector-icons';
 import { getResourseErrorMessage } from '../../../configs/manageError';
 import ErrorMessage from '../error-message/ErrorMessage';
 import { emptyPhrases } from '../../../redux/actions/pharses';
-import { emptyPictograms } from '../../../redux/actions/pictograms';
+import { cleanError, emptyPictograms } from '../../../redux/actions/pictograms';
 import { emptyCategories } from '../../../redux/actions/categories';
 import { logOutUser } from '../../../redux/actions/users';
 
@@ -139,7 +139,7 @@ export default function PictogramForm({ loading, operation, setPictogram, pictog
                             message={getResourseErrorMessage(err.status)}
                             showButton={err.status === 401}
                             messageButton='Volver a iniciar sesión'
-                            onPress={goToLogin}
+                            onPress={ err.status === 401 ? goToLogin : dispatch(cleanError())}
                             />
                 }
                 <H1>{`${operation} pictograma`}</H1>
